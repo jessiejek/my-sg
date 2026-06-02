@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malaysia Itinerary — July 12–15</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0F6E56;
+    --teal-light: #E1F5EE;
+    --teal-mid: #1D9E75;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --blue-mid: #378ADD;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+    --amber-mid: #BA7517;
+    --coral: #712B13;
+    --coral-light: #FAECE7;
+    --coral-mid: #D85A30;
+    --purple: #3C3489;
+    --purple-light: #EEEDFE;
+    --purple-mid: #7F77DD;
+    --pink: #72243E;
+    --pink-light: #FBEAF0;
+    --pink-mid: #D4537E;
+    --gray: #444441;
+    --gray-light: #F1EFE8;
+    --gray-mid: #888780;
+    --text: #1a1a18;
+    --text-muted: #5a5a55;
+    --text-faint: #999990;
+    --bg: #fafaf7;
+    --bg-card: #ffffff;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: #0d2e24;
+    color: #fff;
+    padding: 3rem 1.5rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(29,158,117,0.25) 0%, transparent 65%),
+                radial-gradient(ellipse at 10% 80%, rgba(55,138,221,0.15) 0%, transparent 50%);
+  }
+  .hero-inner { position: relative; max-width: 780px; margin: 0 auto; }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal-mid);
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--teal-mid);
+  }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-top: 1.25rem;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 5px; }
+  .hero-meta span::before { content: '·'; color: var(--teal-mid); }
+  .hero-meta span:first-child::before { display: none; }
+  .hero-note {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem; }
+
+  /* BUDGET SUMMARY */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 1rem;
+  }
+  .budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .bcard {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    transition: box-shadow 0.2s;
+  }
+  .bcard:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+  .bcard.featured {
+    background: #0d2e24;
+    border-color: #0d2e24;
+    color: #fff;
+  }
+  .bcard-day { font-size: 11px; color: var(--text-faint); margin-bottom: 4px; font-weight: 500; }
+  .bcard.featured .bcard-day { color: rgba(255,255,255,0.5); }
+  .bcard-rm { font-size: 17px; font-weight: 600; color: var(--text); }
+  .bcard.featured .bcard-rm { color: #fff; font-size: 19px; }
+  .bcard-php { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .bcard.featured .bcard-php { color: rgba(255,255,255,0.45); }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+  .leg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 3px 10px 3px 7px;
+    border-radius: 20px;
+  }
+  .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* DAY SECTIONS */
+  .day-block { margin-bottom: 3rem; }
+  .day-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .day-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .day-num.d12 { background: var(--teal-light); color: var(--teal); }
+  .day-num.d13 { background: var(--blue-light); color: var(--blue); }
+  .day-num.d14 { background: var(--amber-light); color: var(--amber); }
+  .day-num.d15 { background: var(--coral-light); color: var(--coral); }
+
+  .day-info { flex: 1; }
+  .day-title { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .day-budget-label { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 10px;
+    bottom: 10px;
+    width: 1.5px;
+    background: var(--border);
+  }
+  .titem {
+    position: relative;
+    margin-bottom: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .titem:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border-color: var(--border-strong);
+  }
+  .titem::before {
+    content: '';
+    position: absolute;
+    left: -23px;
+    top: 14px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--gray-mid);
+    border: 2px solid var(--bg);
+  }
+  .titem.train::before { background: var(--blue-mid); }
+  .titem.bus::before { background: var(--amber-mid); }
+  .titem.food::before { background: var(--teal-mid); }
+  .titem.spot::before { background: var(--purple-mid); }
+  .titem.hotel::before { background: var(--pink-mid); }
+
+  .titem-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .ttime {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-faint);
+    white-space: nowrap;
+    margin-bottom: 3px;
+  }
+  .tdesc { font-size: 13px; color: var(--text); line-height: 1.5; flex: 1; }
+  .place-name { font-weight: 600; }
+  .place-type { font-size: 11px; color: var(--text-faint); font-weight: 400; }
+
+  .titem-bottom {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .tag-train { background: var(--blue-light); color: var(--blue); }
+  .tag-bus { background: var(--amber-light); color: var(--amber); }
+  .tag-food { background: var(--teal-light); color: var(--teal); }
+  .tag-walk { background: var(--gray-light); color: var(--gray); }
+  .tag-spot { background: var(--purple-light); color: var(--purple); }
+  .tag-hotel { background: var(--pink-light); color: var(--pink); }
+  .tag-free { background: var(--gray-light); color: var(--gray); }
+
+  .tcost {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* ALERT */
+  .alert {
+    border-left: 3px solid var(--amber-mid);
+    background: var(--amber-light);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 0.85rem 1.1rem;
+    margin: 2rem 0;
+  }
+  .alert-title { font-size: 13px; font-weight: 600; color: var(--amber); margin-bottom: 4px; }
+  .alert p { font-size: 12px; color: var(--amber); line-height: 1.6; }
+
+  /* TIPS */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 3rem;
+  }
+  .tip-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.85rem 1rem;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .tip-icon {
+    font-size: 14px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-size: 11px;
+    color: var(--text-faint);
+    border-top: 1px solid var(--border);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .hero { padding: 2rem 1.25rem 2rem; }
+    .container { padding: 1.5rem 1rem; }
+    .budget-grid { grid-template-columns: 1fr 1fr; }
+    .titem-top { flex-direction: column; }
+    .tcost { margin-left: 0; }
+    .tips-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Travel Itinerary</div>
+    <h1>Malaysia<br><em>July 12–15</em></h1>
+    <div class="hero-meta">
+      <span>2 people</span>
+      <span>Travelodge KL City Centre</span>
+      <span>RM1 ≈ PHP 15.56</span>
+    </div>
+    <div class="hero-note">
+      ⚠️ Airport Grab on July 12 &amp; July 15 is paid by credit card and is <strong>not</strong> included in the cash/e-wallet budget. &nbsp;·&nbsp; Coffee rule: 1 shared coffee, not 2.
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- BUDGET SUMMARY -->
+  <div class="section-label">Budget summary</div>
+  <div class="budget-grid">
+    <div class="bcard">
+      <div class="bcard-day">July 12</div>
+      <div class="bcard-rm">RM 130–200</div>
+      <div class="bcard-php">PHP 2,023–3,111</div>
+    </div>
+    <div class="bcard">
+      <div class="bcard-day">July 13</div>
+      <div class="bcard-rm">RM 165–265</div>
+      <div class="bcard-php">PHP 2,567–4,123</div>
+    </div>
+    <div class="bcard">
+      <div class="bcard-day">July 14</div>
+      <div class="bcard-rm">RM 280–393</div>
+      <div class="bcard-php">PHP 4,356–6,113</div>
+    </div>
+    <div class="bcard">
+      <div class="bcard-day">July 15</div>
+      <div class="bcard-rm">RM 25–45</div>
+      <div class="bcard-php">PHP 389–700</div>
+    </div>
+    <div class="bcard featured">
+      <div class="bcard-day">Total for 2</div>
+      <div class="bcard-rm">RM 600–903</div>
+      <div class="bcard-php">PHP 9,334–14,047</div>
+    </div>
+    <div class="bcard featured">
+      <div class="bcard-day">Recommended cash</div>
+      <div class="bcard-rm">RM 1,000</div>
+      <div class="bcard-php">~PHP 15,560</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:#378ADD"></div>Train / LRT / MRT</div>
+    <div class="leg"><div class="leg-dot" style="background:#BA7517"></div>Bus</div>
+    <div class="leg"><div class="leg-dot" style="background:#1D9E75"></div>Food</div>
+    <div class="leg"><div class="leg-dot" style="background:#7F77DD"></div>Tourist spot</div>
+    <div class="leg"><div class="leg-dot" style="background:#888780"></div>Walk / Free</div>
+    <div class="leg"><div class="leg-dot" style="background:#D4537E"></div>Hotel / Grab</div>
+  </div>
+
+  <!-- DAY 12 -->
+  <div class="day-block">
+    <div class="day-head">
+      <div class="day-num d12">12</div>
+      <div class="day-info">
+        <div class="day-title">Arrival + Chinatown easy day</div>
+        <div class="day-budget-label">RM 130–200 &nbsp;·&nbsp; walk-only day</div>
+      </div>
+    </div>
+    <div class="timeline">
+
+      <div class="titem hotel">
+        <div class="ttime">1:30 AM</div>
+        <div class="tdesc">Arrive <span class="place-name">KLIA <span class="place-type">(airport)</span></span> · clear immigration · get baggage · Grab to hotel</div>
+        <div class="titem-bottom"><span class="tag tag-hotel">Grab</span><span class="tcost">Credit card — not in cash budget</span></div>
+      </div>
+
+      <div class="titem hotel">
+        <div class="ttime">3:00 AM</div>
+        <div class="tdesc">Check in <span class="place-name">Travelodge <span class="place-type">(hotel)</span></span> or leave luggage · rest</div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">8:00 AM</div>
+        <div class="tdesc">Breakfast near <span class="place-name">Chinatown <span class="place-type">(walking area)</span></span> · 1 shared coffee</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 20–30 for 2</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">9:00 AM</div>
+        <div class="tdesc"><span class="place-name">Central Market <span class="place-type">(walking area)</span></span> · free, very near hotel</div>
+        <div class="titem-bottom"><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">10:00 AM</div>
+        <div class="tdesc"><span class="place-name">Petaling Street <span class="place-type">(walking area)</span></span> · shops, street photos, snacks</div>
+        <div class="titem-bottom"><span class="tag tag-walk">Walk</span><span class="tcost">Snacks RM 10–20 for 2</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">11:30 AM</div>
+        <div class="tdesc"><span class="place-name">Kwai Chai Hong <span class="place-type">(photo spot)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">12:30 PM</div>
+        <div class="tdesc">Lunch in <span class="place-name">Chinatown <span class="place-type">(walking area)</span></span> · noodles, rice, kopitiam food</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 35–50 for 2</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">5:00 PM</div>
+        <div class="tdesc"><span class="place-name">River of Life / Masjid Jamek area <span class="place-type">(photo walk)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">7:00 PM</div>
+        <div class="tdesc">Dinner in <span class="place-name">Chinatown <span class="place-type">(walking area)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 45–70 for 2</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DAY 13 -->
+  <div class="day-block">
+    <div class="day-head">
+      <div class="day-num d13">13</div>
+      <div class="day-info">
+        <div class="day-title">Batu Caves + KLCC + Saloma Bridge + Jalan Alor</div>
+        <div class="day-budget-label">RM 165–265</div>
+      </div>
+    </div>
+    <div class="timeline">
+
+      <div class="titem food">
+        <div class="ttime">7:00 AM</div>
+        <div class="tdesc">Breakfast near hotel · 1 shared coffee</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 20–30 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">8:00 AM</div>
+        <div class="tdesc">LRT · <span class="place-name">Pasar Seni <span class="place-type">(station, beside hotel)</span></span> → <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-train">LRT</span><span class="tcost">≈RM 2.60 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">8:30 AM</div>
+        <div class="tdesc">KTM Komuter · <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span> → <span class="place-name">Batu Caves <span class="place-type">(station)</span></span> (~29 min)</div>
+        <div class="titem-bottom"><span class="tag tag-train">KTM</span><span class="tcost">RM 5.20 for 2 (one-way)</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">9:15 AM</div>
+        <div class="tdesc"><span class="place-name">Batu Caves <span class="place-type">(tourist spot)</span></span> · main stairs &amp; temple · walk from station</div>
+        <div class="titem-bottom"><span class="tag tag-spot">Spot</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">11:30 AM</div>
+        <div class="tdesc">Lunch near <span class="place-name">Batu Caves <span class="place-type">(area)</span></span> · roti, thosai, vegetarian rice, curry</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 35–55 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">12:45 PM</div>
+        <div class="tdesc">KTM Komuter · <span class="place-name">Batu Caves <span class="place-type">(station)</span></span> → <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-train">KTM</span><span class="tcost">RM 5.20 for 2 (one-way)</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">1:30 PM</div>
+        <div class="tdesc">LRT · <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span> → <span class="place-name">KLCC <span class="place-type">(station, Petronas area)</span></span> (~12 min)</div>
+        <div class="titem-bottom"><span class="tag tag-train">LRT</span><span class="tcost">≈RM 4.40–5.00 for 2</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">2:00 PM</div>
+        <div class="tdesc"><span class="place-name">Petronas Twin Towers / KLCC <span class="place-type">(tourist spot)</span></span> · outside photo only, no paid entry</div>
+        <div class="titem-bottom"><span class="tag tag-spot">Spot</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">4:30 PM</div>
+        <div class="tdesc"><span class="place-name">KLCC Park / Suria KLCC <span class="place-type">(mall)</span></span> · rest, buy water/snack</div>
+        <div class="titem-bottom"><span class="tag tag-walk">Walk</span><span class="tcost">Snacks RM 10–20 for 2</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">6:00 PM</div>
+        <div class="tdesc"><span class="place-name">Saloma Bridge <span class="place-type">(photo spot)</span></span> · best at sunset / night</div>
+        <div class="titem-bottom"><span class="tag tag-spot">Spot</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">7:00 PM</div>
+        <div class="tdesc"><span class="place-name">KLCC–Bukit Bintang Walkway <span class="place-type">(covered elevated path)</span></span> → <span class="place-name">Pavilion <span class="place-type">(mall)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-walk">Walk</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">7:45 PM</div>
+        <div class="tdesc"><span class="place-name">Jalan Alor <span class="place-type">(food street)</span></span> · rice/noodles + shared side + drinks · avoid seafood sets &amp; crab</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 60–90 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">9:15 PM</div>
+        <div class="tdesc">MRT · <span class="place-name">Bukit Bintang <span class="place-type">(station)</span></span> → <span class="place-name">Pasar Seni <span class="place-type">(station, beside hotel)</span></span> (~3 min)</div>
+        <div class="titem-bottom"><span class="tag tag-train">MRT</span><span class="tcost">≈RM 2–3 for 2</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DAY 14 -->
+  <div class="day-block">
+    <div class="day-head">
+      <div class="day-num d14">14</div>
+      <div class="day-info">
+        <div class="day-title">DIY Malacca day trip</div>
+        <div class="day-budget-label">RM 280–393 &nbsp;·&nbsp; earliest start</div>
+      </div>
+    </div>
+    <div class="timeline">
+
+      <div class="titem food">
+        <div class="ttime">6:00 AM</div>
+        <div class="tdesc">Simple breakfast near hotel · 1 shared coffee</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 20–30 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">6:45 AM</div>
+        <div class="tdesc">LRT · <span class="place-name">Pasar Seni <span class="place-type">(station, beside hotel)</span></span> → <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-train">LRT</span><span class="tcost">≈RM 2.60 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">7:15 AM</div>
+        <div class="tdesc">KLIA Transit · <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span> → <span class="place-name">Bandar Tasik Selatan <span class="place-type">(station, beside bus terminal)</span></span> (~7 min)</div>
+        <div class="titem-bottom"><span class="tag tag-train">KLIA Transit</span><span class="tcost">RM 13.00 for 2 · save RM 1.20 via app</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">7:35 AM</div>
+        <div class="tdesc">Walk to <span class="place-name">TBS / Terminal Bersepadu Selatan <span class="place-type">(bus terminal, like Cebu South Bus Terminal)</span></span> · find your bus gate</div>
+        <div class="titem-bottom"><span class="tag tag-walk">Walk</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem bus">
+        <div class="ttime">8:00 AM</div>
+        <div class="tdesc">Bus · <span class="place-name">TBS <span class="place-type">(bus terminal, KL)</span></span> → <span class="place-name">Melaka Sentral <span class="place-type">(bus terminal, Malacca)</span></span> (~2 hrs) · book in advance!</div>
+        <div class="titem-bottom"><span class="tag tag-bus">Bus</span><span class="tcost">RM 40–56 for 2 round trip</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">10:30 AM</div>
+        <div class="tdesc">Grab/taxi · <span class="place-name">Melaka Sentral <span class="place-type">(bus terminal)</span></span> → <span class="place-name">Dutch Square <span class="place-type">(tourist area)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-walk">Grab</span><span class="tcost">RM 12–20 for 2</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">10:50 AM</div>
+        <div class="tdesc"><span class="place-name">Dutch Square / Red Square <span class="place-type">(tourist area)</span></span> · Christ Church, Stadthuys, fountain, clock tower</div>
+        <div class="titem-bottom"><span class="tag tag-spot">Spot</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">11:30 AM</div>
+        <div class="tdesc"><span class="place-name">St. Paul's Hill <span class="place-type">(tourist spot)</span></span> · ruins &amp; viewpoint</div>
+        <div class="titem-bottom"><span class="tag tag-spot">Spot</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">12:15 PM</div>
+        <div class="tdesc"><span class="place-name">A Famosa / Porta de Santiago <span class="place-type">(tourist spot)</span></span> · photo stop</div>
+        <div class="titem-bottom"><span class="tag tag-spot">Spot</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">1:15 PM</div>
+        <div class="tdesc">Lunch near <span class="place-name">Jonker / Dutch Square <span class="place-type">(area)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 40–60 for 2</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">2:15 PM</div>
+        <div class="tdesc"><span class="place-name">Harmony Street / Jonker Street <span class="place-type">(walking area)</span></span> · temples, mosque, shops</div>
+        <div class="titem-bottom"><span class="tag tag-walk">Walk</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">3:15 PM</div>
+        <div class="tdesc">Cendol / cold drinks</div>
+        <div class="titem-bottom"><span class="tag tag-food">Snack</span><span class="tcost">RM 20–35 for 2</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">4:00 PM</div>
+        <div class="tdesc"><span class="place-name">Melaka River Walk <span class="place-type">(walking area)</span></span> · free photos</div>
+        <div class="titem-bottom"><span class="tag tag-walk">Walk</span><span class="tag tag-free">Free</span></div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">5:30 PM</div>
+        <div class="tdesc">Early dinner in Malacca before return</div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 50–70 for 2</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">6:30 PM</div>
+        <div class="tdesc">Grab/taxi · <span class="place-name">Jonker area <span class="place-type">(tourist area)</span></span> → <span class="place-name">Melaka Sentral <span class="place-type">(bus terminal)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-walk">Grab</span><span class="tcost">RM 12–20 for 2</span></div>
+      </div>
+
+      <div class="titem bus">
+        <div class="ttime">7:00 PM</div>
+        <div class="tdesc">Bus · <span class="place-name">Melaka Sentral <span class="place-type">(bus terminal)</span></span> → <span class="place-name">TBS <span class="place-type">(bus terminal, KL)</span></span> (~2 hrs)</div>
+        <div class="titem-bottom"><span class="tag tag-bus">Bus</span><span class="tcost">Included in round trip</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">9:30 PM</div>
+        <div class="tdesc">KLIA Transit · <span class="place-name">Bandar Tasik Selatan <span class="place-type">(station, beside bus terminal)</span></span> → <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-train">KLIA Transit</span><span class="tcost">RM 13.00 for 2</span></div>
+      </div>
+
+      <div class="titem train">
+        <div class="ttime">9:45 PM</div>
+        <div class="tdesc">LRT · <span class="place-name">KL Sentral <span class="place-type">(station, main hub)</span></span> → <span class="place-name">Pasar Seni <span class="place-type">(station, beside hotel)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-train">LRT</span><span class="tcost">≈RM 2.60 for 2</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DAY 15 -->
+  <div class="day-block">
+    <div class="day-head">
+      <div class="day-num d15">15</div>
+      <div class="day-info">
+        <div class="day-title">KL → Singapore flight day</div>
+        <div class="day-budget-label">RM 25–45 &nbsp;·&nbsp; early checkout</div>
+      </div>
+    </div>
+    <div class="timeline">
+
+      <div class="titem hotel">
+        <div class="ttime">3:15 AM</div>
+        <div class="tdesc">Wake up · final packing · check passports</div>
+      </div>
+
+      <div class="titem hotel">
+        <div class="ttime">3:45 AM</div>
+        <div class="tdesc">Check out <span class="place-name">Travelodge <span class="place-type">(hotel)</span></span> · go to lobby</div>
+      </div>
+
+      <div class="titem hotel">
+        <div class="ttime">4:00 AM</div>
+        <div class="tdesc">Grab · <span class="place-name">Travelodge <span class="place-type">(hotel)</span></span> → <span class="place-name">KLIA <span class="place-type">(airport)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-hotel">Grab</span><span class="tcost">Credit card — not in cash budget</span></div>
+      </div>
+
+      <div class="titem">
+        <div class="ttime">5:00 AM</div>
+        <div class="tdesc"><span class="place-name">KLIA <span class="place-type">(airport)</span></span> · check in, bag drop, immigration &amp; security</div>
+      </div>
+
+      <div class="titem food">
+        <div class="ttime">6:30 AM</div>
+        <div class="tdesc">Airport breakfast / snack at <span class="place-name">KLIA <span class="place-type">(airport)</span></span></div>
+        <div class="titem-bottom"><span class="tag tag-food">Food</span><span class="tcost">RM 25–45 for 2</span></div>
+      </div>
+
+      <div class="titem spot">
+        <div class="ttime">8:00 AM</div>
+        <div class="tdesc">✈️ Flight departs · Kuala Lumpur → Singapore</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ALERT -->
+  <div class="alert">
+    <div class="alert-title">📌 Fact-check note — bus fare correction</div>
+    <p>The original itinerary listed RM 64–72 for the KL ↔ Malacca round trip bus for 2. Actual fares start from RM 10/person one-way — expect <strong>RM 40–56 for 2 round trip</strong> depending on operator. Book in advance on BusOnlineTicket.com or Easybook.com.</p>
+  </div>
+
+  <!-- TIPS -->
+  <div class="section-label">Tips</div>
+  <div class="tips-grid">
+    <div class="tip-card"><span class="tip-icon">💳</span>Get a <strong>Touch 'n Go card</strong> at any train station on arrival — discounts on LRT/MRT and faster boarding.</div>
+    <div class="tip-card"><span class="tip-icon">🗓️</span><strong>Book the Malacca bus in advance</strong> — July 14 is a Sunday and buses fill up fast.</div>
+    <div class="tip-card"><span class="tip-icon">⏰</span>KTM Komuter to Batu Caves runs ~every <strong>30 minutes</strong> — check the schedule before leaving.</div>
+    <div class="tip-card"><span class="tip-icon">📱</span>Download the <strong>KLIA Ekspres app</strong> for 10% off KLIA Transit tickets (saves RM 1.20).</div>
+    <div class="tip-card"><span class="tip-icon">🦀</span>At Jalan Alor: <strong>avoid seafood platters, crab, and big tourist sets</strong> to stay on budget.</div>
+    <div class="tip-card"><span class="tip-icon">☕</span>Coffee rule: <strong>1 shared coffee only</strong> — not 2 separate orders — per the budget.</div>
+  </div>
+
+</div>
+
+<footer>
+  Malaysia Itinerary · July 12–15 · 2 people · RM 600–903 estimated total
+</footer>
+
+</body>
+</html>
