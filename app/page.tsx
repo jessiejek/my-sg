@@ -9,10 +9,16 @@ import { Footer } from '@/components/Footer';
 import { Hero } from '@/components/Hero';
 import { Legend } from '@/components/Legend';
 import { TipCard } from '@/components/TipCard';
-import { buildGuideForItem, itinerary, type TimelineItemData } from '@/data/itinerary';
+import {
+  buildGuideForItem,
+  DEFAULT_ITINERARY_ID,
+  ITINERARIES_BY_ID,
+  type TimelineItemData,
+} from '@/data/itinerary';
 
 export default function HomePage() {
   const [selectedGuide, setSelectedGuide] = useState<ReturnType<typeof buildGuideForItem> | null>(null);
+  const selectedItinerary = ITINERARIES_BY_ID[DEFAULT_ITINERARY_ID];
 
   const handleOpenGuide = (item: TimelineItemData) => {
     setSelectedGuide(buildGuideForItem(item));
@@ -20,27 +26,27 @@ export default function HomePage() {
 
   return (
     <>
-      <Hero hero={itinerary.hero} />
+      <Hero hero={selectedItinerary.hero} />
 
       <main className="container">
-        <BudgetSummary cards={itinerary.budgetSummary} />
-        <Legend items={itinerary.legend} />
+        <BudgetSummary cards={selectedItinerary.budgetSummary} />
+        <Legend items={selectedItinerary.legend} />
 
-        {itinerary.days.map((day) => (
+        {selectedItinerary.days.map((day) => (
           <DaySection key={day.day} day={day} onInfoClick={handleOpenGuide} />
         ))}
 
-        <AlertBox alert={itinerary.alert} />
+        <AlertBox alert={selectedItinerary.alert} />
 
         <div className="section-label">Tips</div>
         <div className="tips-grid">
-          {itinerary.tips.map((tip, index) => (
+          {selectedItinerary.tips.map((tip, index) => (
             <TipCard key={`${tip.icon}-${index}`} tip={tip} />
           ))}
         </div>
       </main>
 
-      <Footer text={itinerary.footer} />
+      <Footer text={selectedItinerary.footer} />
 
       <DestinationInfoModal guide={selectedGuide} onClose={() => setSelectedGuide(null)} />
     </>

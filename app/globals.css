@@ -153,6 +153,94 @@ a {
   padding: 2rem 1.25rem;
 }
 
+.itinerary-switch {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.035);
+  backdrop-filter: blur(8px);
+}
+
+.itinerary-switch-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.itinerary-switch-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.itinerary-switch-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.itinerary-switch-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-card);
+  color: var(--text);
+  padding: 0.9rem 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.itinerary-switch-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--border-strong);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.itinerary-switch-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+.itinerary-switch-btn:focus-visible {
+  outline: 2px solid var(--blue-mid);
+  outline-offset: 2px;
+}
+
+.itinerary-switch-btn[aria-pressed='true'] {
+  background: #0d2e24;
+  border-color: #0d2e24;
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(13, 46, 36, 0.16);
+}
+
+.itinerary-switch-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.itinerary-switch-desc {
+  margin-top: 0.3rem;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.itinerary-switch-btn[aria-pressed='true'] .itinerary-switch-desc {
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .section-label {
   font-size: 10px;
   font-weight: 600;
@@ -781,6 +869,101 @@ a {
   margin-bottom: 0.35rem;
 }
 
+.guide-food {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.guide-food-area {
+  margin: 8px 0 14px;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.guide-food-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guide-food-card,
+.guide-food-order,
+.guide-food-tips {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(248, 250, 252, 0.92);
+  border-radius: 16px;
+  padding: 13px 14px;
+}
+
+.guide-food-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.guide-food-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.guide-food-card span {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #166534;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  border-radius: 999px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.guide-food-card p,
+.guide-food-order p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.55;
+  font-size: 13px;
+}
+
+.guide-food-order,
+.guide-food-tips {
+  margin-top: 12px;
+}
+
+.guide-food-order-label {
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #166534;
+  margin-bottom: 6px;
+}
+
+.guide-food-tips ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+  line-height: 1.55;
+}
+
+.guide-food-tips li {
+  font-size: 13px;
+  margin-bottom: 0.35rem;
+}
+
+.guide-food-note {
+  margin: 12px 0 0;
+  font-size: 0.86rem;
+  color: #64748b;
+  font-style: italic;
+}
+
 .guide-steps,
 .guide-tips {
   padding-left: 1.15rem;
@@ -813,6 +996,14 @@ footer {
 
   .container {
     padding: 1.5rem 1rem;
+  }
+
+  .itinerary-switch {
+    padding: 0.85rem;
+  }
+
+  .itinerary-switch-grid {
+    grid-template-columns: 1fr;
   }
 
   .budget-grid {
@@ -864,6 +1055,19 @@ footer {
 
   .guide-facts {
     grid-template-columns: 1fr;
+  }
+
+  .guide-food-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-food-card-top {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .guide-food-card span {
+    width: fit-content;
   }
 }
 

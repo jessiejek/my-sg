@@ -1,4 +1,4 @@
-export type Category = 'train' | 'bus' | 'food' | 'spot' | 'hotel' | 'walk' | 'free';
+﻿export type Category = 'train' | 'bus' | 'food' | 'spot' | 'hotel' | 'walk' | 'free';
 export type TagVariant = 'train' | 'bus' | 'food' | 'walk' | 'spot' | 'hotel' | 'free';
 
 export type TextSegment = {
@@ -38,14 +38,17 @@ export type LegendItem = {
 };
 
 export type TimelineItemData = {
+  id: string;
   time: string;
   title: string;
   category: Category;
   description: Segment[];
   tags: ItemTag[];
   cost?: string;
-  mapQuery?: string;
+  mapQuery: string;
   image?: string;
+  guideKey: GuideKey;
+  foodGuideKey?: FoodGuideKey;
 };
 
 export type DaySectionData = {
@@ -73,6 +76,20 @@ export type AlertBoxData = {
   body: Segment[];
 };
 
+export type FoodSuggestion = {
+  name: string;
+  description: string;
+  estimatedPrice: string;
+};
+
+export type FoodGuide = {
+  areaNote: string;
+  nearbyFoods: FoodSuggestion[];
+  suggestedOrderForTwo: string;
+  tips: string[];
+  priceNote: string;
+};
+
 export type DestinationGuide = {
   title: string;
   summary: string;
@@ -86,8 +103,90 @@ export type DestinationGuide = {
     getOffHere: string[];
     extra?: string[];
   };
+  foodGuide?: FoodGuide;
   steps: string[];
   tips: string[];
+};
+
+const GUIDE_KEYS = {
+  'a-famosa-porta-de-santiago': true,
+  'airport-breakfast': true,
+  'arrive-klia': true,
+  'batu-caves': true,
+  'breakfast-near-chinatown': true,
+  'breakfast-near-hotel': true,
+  'bus-to-melaka-sentral': true,
+  'bus-to-tbs': true,
+  'cendol-cold-drinks': true,
+  'central-market': true,
+  'check-in': true,
+  'check-out-travelodge': true,
+  'dinner-in-chinatown': true,
+  'dutch-square-red-square': true,
+  'early-dinner-in-malacca': true,
+  'flight-departs': true,
+  'grab-back-to-melaka-sentral': true,
+  'grab-to-dutch-square': true,
+  'grab-to-klia': true,
+  'harmony-street-jonker-street': true,
+  'jalan-alor': true,
+  'klcc-park-suria-klcc': true,
+  'klcc-to-bukit-bintang-walkway': true,
+  'klia-check-in': true,
+  'klia-transit-back-to-kl-sentral': true,
+  'klia-transit-to-bandar-tasik-selatan': true,
+  'ktm-komuter-return': true,
+  'ktm-komuter-to-batu-caves': true,
+  'kwai-chai-hong': true,
+  'lrt-back-to-pasar-seni': true,
+  'lrt-pasar-seni-to-kl-sentral': true,
+  'lrt-to-kl-sentral': true,
+  'lrt-to-klcc': true,
+  'lunch-in-chinatown': true,
+  'lunch-near-batu-caves': true,
+  'lunch-near-jonker-dutch-square': true,
+  'melaka-river-walk': true,
+  'mrt-back-to-pasar-seni': true,
+  'petaling-street': true,
+  'petronas-twin-towers-klcc': true,
+  'river-of-life-masjid-jamek-area': true,
+  'saloma-bridge': true,
+  'simple-breakfast-near-hotel': true,
+  'st-pauls-hill': true,
+  'wake-up': true,
+  'walk-to-tbs': true,
+} as const;
+
+const FOOD_GUIDE_KEYS = {
+  'batu-caves-lunch': true,
+  'chinatown-breakfast': true,
+  'chinatown-dinner': true,
+  'chinatown-lunch': true,
+  'hotel-breakfast': true,
+  'jalan-alor-dinner': true,
+  'klia-breakfast': true,
+  'melaka-cendol': true,
+  'melaka-early-dinner': true,
+  'melaka-jonker-lunch': true,
+  'simple-hotel-breakfast': true,
+} as const;
+
+export type GuideKey = keyof typeof GUIDE_KEYS;
+export type FoodGuideKey = keyof typeof FOOD_GUIDE_KEYS;
+
+export type ItineraryId = 'main' | 'partner';
+
+export type ItineraryPlan = {
+  id: ItineraryId;
+  label: string;
+  description?: string;
+  hero: HeroData;
+  budgetSummary: BudgetCard[];
+  legend: LegendItem[];
+  days: DaySectionData[];
+  alert: AlertBoxData;
+  tips: TipCardData[];
+  footer: string;
 };
 
 const text = (value: string): TextSegment => ({ kind: 'text', value });
@@ -100,7 +199,481 @@ const place = (label: string, placeType: string | undefined, mapQuery: string): 
 });
 const tag = (label: string, variant: TagVariant): ItemTag => ({ label, variant });
 
-export const itinerary = {
+const FOOD_GUIDES_BY_KEY: Record<FoodGuideKey, FoodGuide> = {
+  'chinatown-breakfast': {
+    areaNote:
+      'You are eating around Chinatown / Petaling Street near Travelodge, Pasar Seni, and Central Market. Best choice: simple kopitiam or hawker food, not a fancy café.',
+    nearbyFoods: [
+      {
+        name: 'Kaya butter toast',
+        description: 'Light Malaysian kopitiam breakfast. Good if you want something safe and easy.',
+        estimatedPrice: 'RM 5–13',
+      },
+      {
+        name: 'Chee cheong fun',
+        description: 'Steamed rice noodle rolls with sweet sauce or curry sauce. Good light breakfast.',
+        estimatedPrice: 'RM 5–8',
+      },
+      {
+        name: 'Wantan mee',
+        description: 'Dry egg noodles with wantan and roast/BBQ meat. Filling but still budget-friendly.',
+        estimatedPrice: 'RM 8–13',
+      },
+      {
+        name: 'Nasi lemak bungkus',
+        description: 'Small wrapped nasi lemak with sambal, egg, anchovies, and peanuts.',
+        estimatedPrice: 'RM 4–8',
+      },
+      {
+        name: 'Kopi / teh tarik',
+        description: 'Local coffee or milk tea. Follow the itinerary rule: one shared coffee if budgeting.',
+        estimatedPrice: 'RM 2.50–6',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 1 kaya toast set + 1 chee cheong fun or wantan mee + 1 shared kopi/teh = around RM 18–30.',
+    tips: [
+      'Choose a stall/shop with visible menu prices.',
+      'For breakfast, do not over-order because lunch is also in Chinatown.',
+      'Ask “spicy?”??? before ordering curry or laksa.',
+      'Use small cash for hawker stalls.',
+      'If following the budget, share one coffee instead of buying two drinks.',
+    ],
+    priceNote:
+      'Prices are rough estimates. Hawker stalls can be cheaper; cafés and air-conditioned shops can be higher.',
+  },
+  'hotel-breakfast': {
+    areaNote:
+      'Travelodge is beside the Pasar Seni / Central Market / Chinatown area, so breakfast should be quick and walkable.',
+    nearbyFoods: [
+      {
+        name: 'Kaya butter toast',
+        description: 'Fast kopitiam breakfast. Easy before Batu Caves.',
+        estimatedPrice: 'RM 5–13',
+      },
+      {
+        name: 'Roti canai',
+        description: 'Flatbread with curry. Cheap, filling, and common in Malaysian breakfast spots.',
+        estimatedPrice: 'RM 2.50–6',
+      },
+      {
+        name: 'Nasi lemak bungkus',
+        description: 'Small packed rice meal. Good if you need more energy before the train ride.',
+        estimatedPrice: 'RM 4–8',
+      },
+      {
+        name: 'Half-boiled eggs',
+        description: 'Simple kopitiam protein, usually paired with toast.',
+        estimatedPrice: 'RM 4–7',
+      },
+      {
+        name: 'Kopi / teh tarik',
+        description: 'Local coffee or milk tea. Keep it to one shared drink for budget control.',
+        estimatedPrice: 'RM 2.50–6',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 2 light breakfast items + 1 shared coffee/tea = around RM 18–32.',
+    tips: [
+      'Eat light because Batu Caves includes stairs and walking.',
+      'Pick food that can be served quickly.',
+      'Avoid café brunch if the goal is to keep the day budget low.',
+      'Bring water before leaving for the train.',
+    ],
+    priceNote:
+      'Prices vary by stall. Chain cafés can cost more than hawker/kopitiam stalls.',
+  },
+  'simple-hotel-breakfast': {
+    areaNote:
+      'This is an early Malacca day-trip breakfast. Keep it fast, light, and cheap near Travelodge / Pasar Seni.',
+    nearbyFoods: [
+      {
+        name: 'Roti canai',
+        description: 'Quick flatbread with curry. Good before a long travel day.',
+        estimatedPrice: 'RM 2.50–6',
+      },
+      {
+        name: 'Kaya toast',
+        description: 'Safe and light breakfast if you do not want a heavy meal.',
+        estimatedPrice: 'RM 5–13',
+      },
+      {
+        name: 'Nasi lemak bungkus',
+        description: 'Small rice pack. More filling if you are worried about getting hungry on the bus.',
+        estimatedPrice: 'RM 4–8',
+      },
+      {
+        name: 'Vadai / curry puff',
+        description: 'Small fried snack. Good as backup food for the bus terminal.',
+        estimatedPrice: 'RM 1–3 each',
+      },
+      {
+        name: 'Kopi / teh tarik',
+        description: 'One shared hot drink is enough to follow the budget.',
+        estimatedPrice: 'RM 2.50–6',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 2 roti/kaya/nasi lemak items + 1 shared hot drink = around RM 15–28.',
+    tips: [
+      'Do not sit too long because the Malacca transfer has multiple steps.',
+      'Buy only easy food; avoid messy meals before the bus ride.',
+      'Bring bottled water for the trip.',
+      'Keep small cash ready.',
+    ],
+    priceNote:
+      'Early morning availability varies by shop. These are rough budget estimates.',
+  },
+  'chinatown-lunch': {
+    areaNote:
+      'This is the best Chinatown meal window because Madras Lane / Petaling Street food is strongest from morning to afternoon.',
+    nearbyFoods: [
+      {
+        name: 'Curry laksa',
+        description: 'Coconut curry noodle soup with tofu puffs and noodles. Classic Madras Lane-style Chinatown food.',
+        estimatedPrice: 'RM 10–15',
+      },
+      {
+        name: 'Yong tau foo',
+        description: 'Stuffed tofu and vegetables, served fried or in soup. Good for sharing.',
+        estimatedPrice: 'RM 10–18',
+      },
+      {
+        name: 'Chee cheong fun',
+        description: 'Soft rice noodle rolls with sauce. Good light add-on.',
+        estimatedPrice: 'RM 5–8',
+      },
+      {
+        name: 'Wantan mee',
+        description: 'Dry noodles with dumplings and roast/BBQ meat.',
+        estimatedPrice: 'RM 8–13',
+      },
+      {
+        name: 'Air mata kucing',
+        description: 'Sweet longan winter melon drink, popular around Chinatown/Petaling Street.',
+        estimatedPrice: 'RM 2–5',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 1 curry laksa + 1 wantan mee or yong tau foo plate + 1 shared drink = around RM 30–48.',
+    tips: [
+      'Madras Lane-style stalls are better earlier in the day than late night.',
+      'If there is no visible menu price, ask first before sitting.',
+      'Curry laksa can be spicy and rich; share if unsure.',
+      'Prioritize one proper meal each, not too many snacks.',
+    ],
+    priceNote:
+      'Prices are rough estimates for hawker/kopitiam food. Tourist-facing shops may charge more.',
+  },
+  'chinatown-dinner': {
+    areaNote:
+      'Chinatown dinner is better for cooked dishes, noodles, roast meats, claypot rice, and simple shared food.',
+    nearbyFoods: [
+      {
+        name: 'Claypot chicken rice',
+        description: 'Rice cooked in a claypot with chicken and sausage. Good filling dinner.',
+        estimatedPrice: 'RM 10–18',
+      },
+      {
+        name: 'KL Hokkien mee',
+        description: 'Dark soy wok-fried noodles with smoky flavor. Good for sharing.',
+        estimatedPrice: 'RM 12–20',
+      },
+      {
+        name: 'Roast chicken / roast duck rice',
+        description: 'Simple rice meal from roast meat stalls.',
+        estimatedPrice: 'RM 10–18',
+      },
+      {
+        name: 'Wantan mee',
+        description: 'Safe noodle option if you want something not too heavy.',
+        estimatedPrice: 'RM 8–13',
+      },
+      {
+        name: 'Air mata kucing / herbal tea',
+        description: 'Cheap local drink option instead of expensive café drinks.',
+        estimatedPrice: 'RM 2–5',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 1 claypot chicken rice or Hokkien mee + 1 roast meat rice/noodle + 1 shared drink = around RM 45–70.',
+    tips: [
+      'Dinner crowds can be heavier, so walk first and compare menus.',
+      'Avoid seafood-heavy tourist sets if you want to stay in budget.',
+      'Order shared dishes only if you know the final price.',
+      'Keep phones and wallets secure in the crowd.',
+    ],
+    priceNote:
+      'Prices are rough estimates. Seafood and tourist set meals can quickly exceed the planned budget.',
+  },
+  'batu-caves-lunch': {
+    areaNote:
+      'The practical food choice near Batu Caves is simple Indian vegetarian food around the temple area. Rani Vilas-style pricing is a good budget anchor.',
+    nearbyFoods: [
+      {
+        name: 'Vegetarian set meal',
+        description: 'Rice with vegetarian sides/curries. Filling lunch after the Batu Caves climb.',
+        estimatedPrice: 'From RM 12',
+      },
+      {
+        name: 'Thosai',
+        description: 'Thin fermented crepe served with curry/chutney. Light and cheap.',
+        estimatedPrice: 'RM 4–6.50',
+      },
+      {
+        name: 'Masala thosai',
+        description: 'Thosai filled with spiced potato. Better if you want a more filling option.',
+        estimatedPrice: 'RM 6',
+      },
+      {
+        name: 'Roti canai',
+        description: 'Flatbread with curry. Cheap add-on or light meal.',
+        estimatedPrice: 'RM 2.50–8',
+      },
+      {
+        name: 'Vadai / samosa / karipap',
+        description: 'Small snacks if you only need something quick.',
+        estimatedPrice: 'RM 1–2.50 each',
+      },
+      {
+        name: 'Teh / limau / Bru coffee',
+        description: 'Simple drink options after the hot temple walk.',
+        estimatedPrice: 'RM 2–5',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 1 vegetarian set meal + 1 masala thosai or roti canai + 2 simple drinks = around RM 26–38. Add vadai if still hungry.',
+    tips: [
+      'Eat after climbing, not before, unless you need energy.',
+      'Vegetarian food is common near the temple area.',
+      'Ask if the curry is spicy.',
+      'Do not over-order because you still need to travel back to KLCC.',
+      'Buy water before leaving the area.',
+    ],
+    priceNote:
+      'Rani Vilas delivery menu prices were used as a conservative price anchor; in-person prices may vary.',
+  },
+  'jalan-alor-dinner': {
+    areaNote:
+      'Jalan Alor is a famous Bukit Bintang food street. It is good for dinner, but it can become expensive if you order seafood, crab, prawns, or tourist combo sets.',
+    nearbyFoods: [
+      {
+        name: 'Grilled chicken wings',
+        description: 'One of the classic Jalan Alor items. Smoky, shareable, and safer than seafood for budget control.',
+        estimatedPrice: 'Around RM 20 per order',
+      },
+      {
+        name: 'Satay skewers',
+        description: 'Grilled meat skewers with peanut sauce. Good shared side.',
+        estimatedPrice: 'Around RM 16 for 10 pieces',
+      },
+      {
+        name: 'Char kway teow',
+        description: 'Stir-fried flat noodles. Good as one main dish.',
+        estimatedPrice: 'Around RM 10–15',
+      },
+      {
+        name: 'Fried rice / fried noodles',
+        description: 'Simple filling option if you want to avoid seafood pricing.',
+        estimatedPrice: 'RM 10–20',
+      },
+      {
+        name: 'Coconut ice cream / mango dessert',
+        description: 'Good dessert if there is still room in the budget.',
+        estimatedPrice: 'RM 8–15',
+      },
+      {
+        name: 'Seafood dishes',
+        description: 'Available, but not recommended for this budget because seafood can be market-priced.',
+        estimatedPrice: 'RM 22–40+ depending on item',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: grilled chicken wings + 1 char kway teow/fried noodles + 10 satay + water or one shared dessert = around RM 55–85.',
+    tips: [
+      'Read the menu before sitting.',
+      'Avoid crab, prawns, large seafood platters, and “recommended sets” if not priced clearly.',
+      'Order one round first. Add more only if still hungry.',
+      'Water or one shared drink keeps the total lower.',
+      'Keep the budget target visible: RM 60–90 for 2.',
+    ],
+    priceNote:
+      'Recent guides show many Jalan Alor dishes around RM 10–40, with seafood often higher or market-priced.',
+  },
+  'melaka-jonker-lunch': {
+    areaNote:
+      'This is the old-town Melaka food zone near Dutch Square and Jonker Street. Best choices are chicken rice balls, Nyonya laksa, cendol, and simple local dishes.',
+    nearbyFoods: [
+      {
+        name: 'Chicken rice balls',
+        description: 'Melaka specialty: chicken rice served with rice shaped into balls.',
+        estimatedPrice: 'RM 30–45 for 2 depending on portion',
+      },
+      {
+        name: 'Nyonya laksa',
+        description: 'Peranakan-style spicy coconut noodle soup. Good sit-down lunch.',
+        estimatedPrice: 'RM 10–18',
+      },
+      {
+        name: 'Asam laksa',
+        description: 'Tangy fish-based noodle soup. Good if you like sour/spicy flavors.',
+        estimatedPrice: 'RM 10–18',
+      },
+      {
+        name: 'Cendol',
+        description: 'Shaved ice dessert with coconut milk and gula Melaka.',
+        estimatedPrice: 'RM 4–8',
+      },
+      {
+        name: 'Nyonya kuih / pineapple tart',
+        description: 'Small local sweets/snacks. Better as dessert or takeaway.',
+        estimatedPrice: 'RM 3–10',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: chicken rice balls for 2 or 2 noodle bowls + 1 shared cendol/drink = around RM 38–58.',
+    tips: [
+      'Eat lunch first before buying random Jonker snacks.',
+      'Chicken rice ball shops can queue; choose a cleaner/available shop if you are short on time.',
+      'Cendol is good after lunch, but do not buy too many desserts before the river walk.',
+      'Check if the shop accepts cash only.',
+    ],
+    priceNote:
+      'Prices are rough estimates based on recent Melaka food guides and older published meal-price examples.',
+  },
+  'melaka-cendol': {
+    areaNote:
+      'This is a planned cooling break in the Jonker Street / Melaka old-town area. Keep it short and cheap.',
+    nearbyFoods: [
+      {
+        name: 'Classic cendol',
+        description: 'Shaved ice, coconut milk, pandan jelly, red beans, and gula Melaka.',
+        estimatedPrice: 'RM 4–6',
+      },
+      {
+        name: 'Nyonya cendol',
+        description: 'Cendol variant with stronger Peranakan-style gula Melaka flavor.',
+        estimatedPrice: 'RM 4–8',
+      },
+      {
+        name: 'Durian cendol',
+        description: 'Richer cendol with durian. Only buy if both people like durian.',
+        estimatedPrice: 'RM 8–15',
+      },
+      {
+        name: 'Air mata kucing / herbal drink',
+        description: 'Light local drink if you do not want dessert.',
+        estimatedPrice: 'RM 2–5',
+      },
+      {
+        name: 'Coconut shake / fresh coconut',
+        description: 'Refreshing option on a hot afternoon.',
+        estimatedPrice: 'RM 6–10',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 2 classic cendol, or 1 cendol + 1 coconut/herbal drink = around RM 10–22.',
+    tips: [
+      'This is a snack break, not a full meal.',
+      'Classic cendol is usually the safest budget choice.',
+      'Durian cendol costs more and is not for everyone.',
+      'Sit down briefly, cool off, then continue walking.',
+    ],
+    priceNote:
+      'Jonker-area cendol guides list common cendol around RM 4–8, with special/durian versions higher.',
+  },
+  'melaka-early-dinner': {
+    areaNote:
+      'This is the final Melaka meal before returning to Melaka Sentral. Choose filling but fast food. Do not risk a long queue.',
+    nearbyFoods: [
+      {
+        name: 'Chicken rice balls',
+        description: 'Safe Melaka specialty if you did not eat it at lunch.',
+        estimatedPrice: 'RM 30–45 for 2 depending on portion',
+      },
+      {
+        name: 'Nyonya laksa / asam laksa',
+        description: 'Good one-bowl dinner before the bus ride.',
+        estimatedPrice: 'RM 10–18 each',
+      },
+      {
+        name: 'Fried noodles / Hokkien mee',
+        description: 'Simple filling dinner option.',
+        estimatedPrice: 'RM 12–20',
+      },
+      {
+        name: 'Satay celup',
+        description: 'Melaka specialty skewers dipped in satay sauce. Fun but can take longer and cost more if you order many sticks.',
+        estimatedPrice: 'RM 1.35+ per skewer, sauce/setup can be extra depending on shop',
+      },
+      {
+        name: 'Nyonya dish with rice',
+        description: 'Good if you find a casual Peranakan shop and prices are clear.',
+        estimatedPrice: 'RM 13–25 per dish',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 2 simple mains + 1 shared drink = around RM 45–70. Skip satay celup if queue is long or if the return bus time is close.',
+    tips: [
+      'Leave enough time to Grab back to Melaka Sentral.',
+      'Avoid any restaurant with a long queue after 5:30 PM.',
+      'Ask for the bill early if service is slow.',
+      'Do not order messy seafood before a bus ride.',
+      'Set an alarm for the time you need to leave Jonker.',
+    ],
+    priceNote:
+      'Prices are rough estimates. Satay celup can exceed budget if you order many skewers.',
+  },
+  'klia-breakfast': {
+    areaNote:
+      'KLIA food is more expensive than street food. Keep this as a light breakfast/snack, not a full restaurant meal.',
+    nearbyFoods: [
+      {
+        name: 'Kaya toast / toast set',
+        description: 'Easy airport breakfast. Good if you only need something light before boarding.',
+        estimatedPrice: 'RM 8–15',
+      },
+      {
+        name: 'Nasi lemak',
+        description: 'Filling Malaysian airport meal. Can be much higher inside cafés.',
+        estimatedPrice: 'RM 15–35',
+      },
+      {
+        name: 'Chicken rice / rice meal',
+        description: 'Simple full meal if you are already hungry before the flight.',
+        estimatedPrice: 'RM 15–30',
+      },
+      {
+        name: 'Coffee / teh tarik / white coffee',
+        description: 'Airport café drinks are usually higher than kopitiam prices.',
+        estimatedPrice: 'RM 8–12',
+      },
+      {
+        name: 'Bun / pastry / sandwich',
+        description: 'Fastest option if boarding time is close.',
+        estimatedPrice: 'RM 8–18',
+      },
+      {
+        name: 'Bottled water',
+        description: 'Buy water if allowed before boarding or after security depending on airport rules.',
+        estimatedPrice: 'RM 3–6',
+      },
+    ],
+    suggestedOrderForTwo:
+      'Budget order for 2: 2 light snacks/toast items + 1 shared drink or water = around RM 25–45. A full sit-down café meal for 2 can exceed RM 60.',
+    tips: [
+      'Eat before immigration/security if there are better food choices landside.',
+      'Do not order a full meal if boarding time is close.',
+      'Airport meals cost more, so keep it simple.',
+      'Check the gate and walking time before sitting down.',
+      'Water is more important than coffee before a flight.',
+    ],
+    priceNote:
+      'Airport prices vary heavily by terminal, outlet, and whether you are before or after immigration.',
+  },
+};
+
+const currentItinerary = {
   hero: {
     eyebrow: 'Travel Itinerary',
     title: 'Jessie and Amor',
@@ -136,6 +709,8 @@ export const itinerary = {
       items: [
         {
           time: '1:30 AM',
+          id: 'day12-arrive-klia',
+          guideKey: 'arrive-klia',
           title: 'Arrive KLIA',
           category: 'hotel',
           description: [
@@ -144,11 +719,13 @@ export const itinerary = {
             text(' · clear immigration · get baggage · Grab to hotel'),
           ],
           tags: [tag('Grab', 'hotel')],
-          cost: 'Credit card — not in cash budget',
+          cost: 'Credit card · not in cash budget',
           mapQuery: 'KLIA',
         },
         {
           time: '3:00 AM',
+          id: 'day12-check-in',
+          guideKey: 'check-in',
           title: 'Check in',
           category: 'hotel',
           description: [
@@ -161,8 +738,11 @@ export const itinerary = {
         },
         {
           time: '8:00 AM',
+          id: 'day12-breakfast-near-chinatown',
+          guideKey: 'breakfast-near-chinatown',
           title: 'Breakfast near Chinatown',
           category: 'food',
+          foodGuideKey: 'chinatown-breakfast',
           description: [
             text('Breakfast near '),
             place('Chinatown', '(walking area)', 'Chinatown, Kuala Lumpur'),
@@ -174,6 +754,8 @@ export const itinerary = {
         },
         {
           time: '9:00 AM',
+          id: 'day12-central-market',
+          guideKey: 'central-market',
           title: 'Central Market',
           category: 'free',
           description: [
@@ -185,6 +767,8 @@ export const itinerary = {
         },
         {
           time: '10:00 AM',
+          id: 'day12-petaling-street',
+          guideKey: 'petaling-street',
           title: 'Petaling Street',
           category: 'free',
           description: [
@@ -197,6 +781,8 @@ export const itinerary = {
         },
         {
           time: '11:30 AM',
+          id: 'day12-kwai-chai-hong',
+          guideKey: 'kwai-chai-hong',
           title: 'Kwai Chai Hong',
           category: 'free',
           description: [
@@ -207,8 +793,11 @@ export const itinerary = {
         },
         {
           time: '12:30 PM',
+          id: 'day12-lunch-in-chinatown',
+          guideKey: 'lunch-in-chinatown',
           title: 'Lunch in Chinatown',
           category: 'food',
+          foodGuideKey: 'chinatown-lunch',
           description: [
             text('Lunch in '),
             place('Chinatown', '(walking area)', 'Chinatown, Kuala Lumpur'),
@@ -220,6 +809,8 @@ export const itinerary = {
         },
         {
           time: '5:00 PM',
+          id: 'day12-river-of-life-masjid-jamek-area',
+          guideKey: 'river-of-life-masjid-jamek-area',
           title: 'River of Life / Masjid Jamek area',
           category: 'free',
           description: [
@@ -230,8 +821,11 @@ export const itinerary = {
         },
         {
           time: '7:00 PM',
+          id: 'day12-dinner-in-chinatown',
+          guideKey: 'dinner-in-chinatown',
           title: 'Dinner in Chinatown',
           category: 'food',
+          foodGuideKey: 'chinatown-dinner',
           description: [
             text('Dinner in '),
             place('Chinatown', '(walking area)', 'Chinatown, Kuala Lumpur'),
@@ -249,8 +843,11 @@ export const itinerary = {
       items: [
         {
           time: '7:00 AM',
+          id: 'day13-breakfast-near-hotel',
+          guideKey: 'breakfast-near-hotel',
           title: 'Breakfast near hotel',
           category: 'food',
+          foodGuideKey: 'hotel-breakfast',
           description: [text('Breakfast near hotel · 1 shared coffee')],
           tags: [tag('Food', 'food')],
           cost: 'RM 20–30 for 2',
@@ -258,12 +855,14 @@ export const itinerary = {
         },
         {
           time: '8:00 AM',
+          id: 'day13-lrt-pasar-seni-to-kl-sentral',
+          guideKey: 'lrt-pasar-seni-to-kl-sentral',
           title: 'LRT Pasar Seni to KL Sentral',
           category: 'train',
           description: [
             text('LRT · '),
             place('Pasar Seni', '(station, beside hotel)', 'Pasar Seni LRT Station'),
-            text(' → '),
+            text(' · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
           ],
           tags: [tag('LRT', 'train')],
@@ -272,12 +871,14 @@ export const itinerary = {
         },
         {
           time: '8:30 AM',
+          id: 'day13-ktm-komuter-to-batu-caves',
+          guideKey: 'ktm-komuter-to-batu-caves',
           title: 'KTM Komuter to Batu Caves',
           category: 'train',
           description: [
             text('KTM Komuter · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
-            text(' → '),
+            text(' · '),
             place('Batu Caves', '(station)', 'Batu Caves'),
             text(' (~29 min)'),
           ],
@@ -287,6 +888,8 @@ export const itinerary = {
         },
         {
           time: '9:15 AM',
+          id: 'day13-batu-caves',
+          guideKey: 'batu-caves',
           title: 'Batu Caves',
           category: 'spot',
           description: [
@@ -298,8 +901,11 @@ export const itinerary = {
         },
         {
           time: '11:30 AM',
+          id: 'day13-lunch-near-batu-caves',
+          guideKey: 'lunch-near-batu-caves',
           title: 'Lunch near Batu Caves',
           category: 'food',
+          foodGuideKey: 'batu-caves-lunch',
           description: [
             text('Lunch near '),
             place('Batu Caves', '(area)', 'Batu Caves'),
@@ -311,12 +917,14 @@ export const itinerary = {
         },
         {
           time: '12:45 PM',
+          id: 'day13-ktm-komuter-return',
+          guideKey: 'ktm-komuter-return',
           title: 'KTM Komuter return',
           category: 'train',
           description: [
             text('KTM Komuter · '),
             place('Batu Caves', '(station)', 'Batu Caves'),
-            text(' → '),
+            text(' · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
           ],
           tags: [tag('KTM', 'train')],
@@ -325,12 +933,14 @@ export const itinerary = {
         },
         {
           time: '1:30 PM',
+          id: 'day13-lrt-to-klcc',
+          guideKey: 'lrt-to-klcc',
           title: 'LRT to KLCC',
           category: 'train',
           description: [
             text('LRT · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
-            text(' → '),
+            text(' · '),
             place('KLCC', '(station, Petronas area)', 'KLCC Station'),
             text(' (~12 min)'),
           ],
@@ -340,6 +950,8 @@ export const itinerary = {
         },
         {
           time: '2:00 PM',
+          id: 'day13-petronas-twin-towers-klcc',
+          guideKey: 'petronas-twin-towers-klcc',
           title: 'Petronas Twin Towers / KLCC',
           category: 'spot',
           description: [
@@ -351,6 +963,8 @@ export const itinerary = {
         },
         {
           time: '4:30 PM',
+          id: 'day13-klcc-park-suria-klcc',
+          guideKey: 'klcc-park-suria-klcc',
           title: 'KLCC Park / Suria KLCC',
           category: 'walk',
           description: [
@@ -363,6 +977,8 @@ export const itinerary = {
         },
         {
           time: '6:00 PM',
+          id: 'day13-saloma-bridge',
+          guideKey: 'saloma-bridge',
           title: 'Saloma Bridge',
           category: 'spot',
           description: [
@@ -374,11 +990,13 @@ export const itinerary = {
         },
         {
           time: '7:00 PM',
+          id: 'day13-klcc-to-bukit-bintang-walkway',
+          guideKey: 'klcc-to-bukit-bintang-walkway',
           title: 'KLCC to Bukit Bintang Walkway',
           category: 'walk',
           description: [
-            place('KLCC–Bukit Bintang Walkway', '(covered elevated path)', 'KLCC-Bukit Bintang Walkway'),
-            text(' → '),
+            place('KLCC?Bukit Bintang Walkway', '(covered elevated path)', 'KLCC-Bukit Bintang Walkway'),
+            text(' · '),
             place('Pavilion', '(mall)', 'Pavilion Kuala Lumpur'),
           ],
           tags: [tag('Walk', 'walk'), tag('Free', 'free')],
@@ -386,8 +1004,11 @@ export const itinerary = {
         },
         {
           time: '7:45 PM',
+          id: 'day13-jalan-alor',
+          guideKey: 'jalan-alor',
           title: 'Jalan Alor',
           category: 'food',
+          foodGuideKey: 'jalan-alor-dinner',
           description: [
             place('Jalan Alor', '(food street)', 'Jalan Alor Kuala Lumpur'),
             text(' · rice/noodles + shared side + drinks · avoid seafood sets & crab'),
@@ -398,12 +1019,14 @@ export const itinerary = {
         },
         {
           time: '9:15 PM',
+          id: 'day13-mrt-back-to-pasar-seni',
+          guideKey: 'mrt-back-to-pasar-seni',
           title: 'MRT back to Pasar Seni',
           category: 'train',
           description: [
             text('MRT · '),
             place('Bukit Bintang', '(station)', 'Bukit Bintang MRT Station'),
-            text(' → '),
+            text(' · '),
             place('Pasar Seni', '(station, beside hotel)', 'Pasar Seni Station'),
             text(' (~3 min)'),
           ],
@@ -420,8 +1043,11 @@ export const itinerary = {
       items: [
         {
           time: '6:00 AM',
+          id: 'day14-simple-breakfast-near-hotel',
+          guideKey: 'simple-breakfast-near-hotel',
           title: 'Simple breakfast near hotel',
           category: 'food',
+          foodGuideKey: 'simple-hotel-breakfast',
           description: [text('Simple breakfast near hotel · 1 shared coffee')],
           tags: [tag('Food', 'food')],
           cost: 'RM 20–30 for 2',
@@ -429,12 +1055,14 @@ export const itinerary = {
         },
         {
           time: '6:45 AM',
+          id: 'day14-lrt-to-kl-sentral',
+          guideKey: 'lrt-to-kl-sentral',
           title: 'LRT to KL Sentral',
           category: 'train',
           description: [
             text('LRT · '),
             place('Pasar Seni', '(station, beside hotel)', 'Pasar Seni Station'),
-            text(' → '),
+            text(' · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
           ],
           tags: [tag('LRT', 'train')],
@@ -443,12 +1071,14 @@ export const itinerary = {
         },
         {
           time: '7:15 AM',
+          id: 'day14-klia-transit-to-bandar-tasik-selatan',
+          guideKey: 'klia-transit-to-bandar-tasik-selatan',
           title: 'KLIA Transit to Bandar Tasik Selatan',
           category: 'train',
           description: [
             text('KLIA Transit · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
-            text(' → '),
+            text(' · '),
             place('Bandar Tasik Selatan', '(station, beside bus terminal)', 'Bandar Tasik Selatan Station'),
             text(' (~7 min)'),
           ],
@@ -458,6 +1088,8 @@ export const itinerary = {
         },
         {
           time: '7:35 AM',
+          id: 'day14-walk-to-tbs',
+          guideKey: 'walk-to-tbs',
           title: 'Walk to TBS',
           category: 'walk',
           description: [
@@ -470,12 +1102,14 @@ export const itinerary = {
         },
         {
           time: '8:00 AM',
+          id: 'day14-bus-to-melaka-sentral',
+          guideKey: 'bus-to-melaka-sentral',
           title: 'Bus to Melaka Sentral',
           category: 'bus',
           description: [
             text('Bus · '),
             place('TBS', '(bus terminal, KL)', 'TBS Terminal Bersepadu Selatan'),
-            text(' → '),
+            text(' · '),
             place('Melaka Sentral', '(bus terminal, Malacca)', 'Melaka Sentral'),
             text(' (~2 hrs) · book in advance!'),
           ],
@@ -485,12 +1119,14 @@ export const itinerary = {
         },
         {
           time: '10:30 AM',
+          id: 'day14-grab-to-dutch-square',
+          guideKey: 'grab-to-dutch-square',
           title: 'Grab to Dutch Square',
           category: 'walk',
           description: [
             text('Grab/taxi · '),
             place('Melaka Sentral', '(bus terminal)', 'Melaka Sentral'),
-            text(' → '),
+            text(' · '),
             place('Dutch Square', '(tourist area)', 'Dutch Square Malacca'),
           ],
           tags: [tag('Grab', 'hotel')],
@@ -499,6 +1135,8 @@ export const itinerary = {
         },
         {
           time: '10:50 AM',
+          id: 'day14-dutch-square-red-square',
+          guideKey: 'dutch-square-red-square',
           title: 'Dutch Square / Red Square',
           category: 'spot',
           description: [
@@ -510,6 +1148,8 @@ export const itinerary = {
         },
         {
           time: '11:30 AM',
+          id: 'day14-st-pauls-hill',
+          guideKey: 'st-pauls-hill',
           title: "St. Paul's Hill",
           category: 'spot',
           description: [
@@ -521,6 +1161,8 @@ export const itinerary = {
         },
         {
           time: '12:15 PM',
+          id: 'day14-a-famosa-porta-de-santiago',
+          guideKey: 'a-famosa-porta-de-santiago',
           title: 'A Famosa / Porta de Santiago',
           category: 'spot',
           description: [
@@ -532,8 +1174,11 @@ export const itinerary = {
         },
         {
           time: '1:15 PM',
+          id: 'day14-lunch-near-jonker-dutch-square',
+          guideKey: 'lunch-near-jonker-dutch-square',
           title: 'Lunch near Jonker / Dutch Square',
           category: 'food',
+          foodGuideKey: 'melaka-jonker-lunch',
           description: [
             text('Lunch near '),
             place('Jonker / Dutch Square', '(area)', 'Jonker Street Malacca'),
@@ -544,6 +1189,8 @@ export const itinerary = {
         },
         {
           time: '2:15 PM',
+          id: 'day14-harmony-street-jonker-street',
+          guideKey: 'harmony-street-jonker-street',
           title: 'Harmony Street / Jonker Street',
           category: 'walk',
           description: [
@@ -555,8 +1202,11 @@ export const itinerary = {
         },
         {
           time: '3:15 PM',
+          id: 'day14-cendol-cold-drinks',
+          guideKey: 'cendol-cold-drinks',
           title: 'Cendol / cold drinks',
           category: 'food',
+          foodGuideKey: 'melaka-cendol',
           description: [text('Cendol / cold drinks')],
           tags: [tag('Snack', 'food')],
           cost: 'RM 20–35 for 2',
@@ -564,6 +1214,8 @@ export const itinerary = {
         },
         {
           time: '4:00 PM',
+          id: 'day14-melaka-river-walk',
+          guideKey: 'melaka-river-walk',
           title: 'Melaka River Walk',
           category: 'walk',
           description: [
@@ -575,8 +1227,11 @@ export const itinerary = {
         },
         {
           time: '5:30 PM',
+          id: 'day14-early-dinner-in-malacca',
+          guideKey: 'early-dinner-in-malacca',
           title: 'Early dinner in Malacca',
           category: 'food',
+          foodGuideKey: 'melaka-early-dinner',
           description: [text('Early dinner in Malacca before return')],
           tags: [tag('Food', 'food')],
           cost: 'RM 50–70 for 2',
@@ -584,12 +1239,14 @@ export const itinerary = {
         },
         {
           time: '6:30 PM',
+          id: 'day14-grab-back-to-melaka-sentral',
+          guideKey: 'grab-back-to-melaka-sentral',
           title: 'Grab back to Melaka Sentral',
           category: 'walk',
           description: [
             text('Grab/taxi · '),
             place('Jonker area', '(tourist area)', 'Jonker Street Malacca'),
-            text(' → '),
+            text(' · '),
             place('Melaka Sentral', '(bus terminal)', 'Melaka Sentral'),
           ],
           tags: [tag('Grab', 'hotel')],
@@ -598,12 +1255,14 @@ export const itinerary = {
         },
         {
           time: '7:00 PM',
+          id: 'day14-bus-to-tbs',
+          guideKey: 'bus-to-tbs',
           title: 'Bus to TBS',
           category: 'bus',
           description: [
             text('Bus · '),
             place('Melaka Sentral', '(bus terminal)', 'Melaka Sentral'),
-            text(' → '),
+            text(' · '),
             place('TBS', '(bus terminal, KL)', 'TBS Terminal Bersepadu Selatan'),
             text(' (~2 hrs)'),
           ],
@@ -613,12 +1272,14 @@ export const itinerary = {
         },
         {
           time: '9:30 PM',
+          id: 'day14-klia-transit-back-to-kl-sentral',
+          guideKey: 'klia-transit-back-to-kl-sentral',
           title: 'KLIA Transit back to KL Sentral',
           category: 'train',
           description: [
             text('KLIA Transit · '),
             place('Bandar Tasik Selatan', '(station, beside bus terminal)', 'Bandar Tasik Selatan Station'),
-            text(' → '),
+            text(' · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
           ],
           tags: [tag('KLIA Transit', 'train')],
@@ -627,12 +1288,14 @@ export const itinerary = {
         },
         {
           time: '9:45 PM',
+          id: 'day14-lrt-back-to-pasar-seni',
+          guideKey: 'lrt-back-to-pasar-seni',
           title: 'LRT back to Pasar Seni',
           category: 'train',
           description: [
             text('LRT · '),
             place('KL Sentral', '(station, main hub)', 'KL Sentral Station'),
-            text(' → '),
+            text(' · '),
             place('Pasar Seni', '(station, beside hotel)', 'Pasar Seni Station'),
           ],
           tags: [tag('LRT', 'train')],
@@ -648,6 +1311,8 @@ export const itinerary = {
       items: [
         {
           time: '3:15 AM',
+          id: 'day15-wake-up',
+          guideKey: 'wake-up',
           title: 'Wake up',
           category: 'hotel',
           description: [text('Wake up · final packing · check passports')],
@@ -656,6 +1321,8 @@ export const itinerary = {
         },
         {
           time: '3:45 AM',
+          id: 'day15-check-out-travelodge',
+          guideKey: 'check-out-travelodge',
           title: 'Check out Travelodge',
           category: 'hotel',
           description: [
@@ -668,20 +1335,24 @@ export const itinerary = {
         },
         {
           time: '4:00 AM',
+          id: 'day15-grab-to-klia',
+          guideKey: 'grab-to-klia',
           title: 'Grab to KLIA',
           category: 'hotel',
           description: [
             text('Grab · '),
             place('Travelodge', '(hotel)', 'Travelodge Kuala Lumpur City Centre'),
-            text(' → '),
+            text(' · '),
             place('KLIA', '(airport)', 'KLIA'),
           ],
           tags: [tag('Grab', 'hotel')],
-          cost: 'Credit card — not in cash budget',
+          cost: 'Credit card · not in cash budget',
           mapQuery: 'Travelodge Kuala Lumpur City Centre',
         },
         {
           time: '5:00 AM',
+          id: 'day15-klia-check-in',
+          guideKey: 'klia-check-in',
           title: 'KLIA check-in',
           category: 'free',
           description: [
@@ -693,8 +1364,11 @@ export const itinerary = {
         },
         {
           time: '6:30 AM',
+          id: 'day15-airport-breakfast',
+          guideKey: 'airport-breakfast',
           title: 'Airport breakfast',
           category: 'food',
+          foodGuideKey: 'klia-breakfast',
           description: [
             text('Airport breakfast / snack at '),
             place('KLIA', '(airport)', 'KLIA'),
@@ -705,6 +1379,8 @@ export const itinerary = {
         },
         {
           time: '8:00 AM',
+          id: 'day15-flight-departs',
+          guideKey: 'flight-departs',
           title: 'Flight departs',
           category: 'spot',
           description: [text('✈️ Flight departs · Kuala Lumpur → Singapore')],
@@ -715,27 +1391,27 @@ export const itinerary = {
     },
   ] satisfies DaySectionData[],
   alert: {
-    title: '📌 Fact-check note — bus fare correction',
+    title: '📌 Fact-check note · bus fare correction',
     body: [
-      text('The original itinerary listed RM 64–72 for the KL ↔ Malacca round trip bus for 2. Actual fares start from RM 10/person one-way — expect '),
+      text('The original itinerary listed RM 64–72 for the KL ↔ Malacca round trip bus for 2. Actual fares start from RM 10/person one-way · expect '),
       strong('RM 40–56 for 2 round trip'),
       text(' depending on operator. Book in advance on BusOnlineTicket.com or Easybook.com.'),
     ],
   } satisfies AlertBoxData,
   tips: [
     {
-      icon: '💳',
+      icon: 'ðŸ’³',
       description: [
         text("Get a "),
         strong("Touch 'n Go card"),
-        text(' at any train station on arrival — discounts on LRT/MRT and faster boarding.'),
+        text(' at any train station on arrival · discounts on LRT/MRT and faster boarding.'),
       ],
     },
     {
-      icon: '🗓️',
+      icon: 'ðŸ—“ï¸',
       description: [
         strong('Book the Malacca bus in advance'),
-        text(' — July 14 is a Sunday and buses fill up fast.'),
+        text(' · July 14 is a Sunday and buses fill up fast.'),
       ],
     },
     {
@@ -743,11 +1419,11 @@ export const itinerary = {
       description: [
         text('KTM Komuter to Batu Caves runs ~every '),
         strong('30 minutes'),
-        text(' — check the schedule before leaving.'),
+        text(' · check the schedule before leaving.'),
       ],
     },
     {
-      icon: '📱',
+      icon: 'ðŸ“±',
       description: [
         text('Download the '),
         strong('KLIA Ekspres app'),
@@ -755,7 +1431,7 @@ export const itinerary = {
       ],
     },
     {
-      icon: '🦀',
+      icon: 'ðŸ¦€',
       description: [
         text('At Jalan Alor: '),
         strong('avoid seafood platters, crab, and big tourist sets'),
@@ -763,11 +1439,11 @@ export const itinerary = {
       ],
     },
     {
-      icon: '☕',
+      icon: '⏰',
       description: [
         text('Coffee rule: '),
         strong('1 shared coffee only'),
-        text(' — not 2 separate orders — per the budget.'),
+        text(' · not 2 separate orders · per the budget.'),
       ],
     },
   ] satisfies TipCardData[],
@@ -870,7 +1546,7 @@ export const destinationGuides: Record<string, DestinationGuide> = {
     ],
     tips: [
       'If you feel lost, read the big sign boards above you.',
-      'If you still feel unsure, ask the station staff: “KL Sentral?”',
+      'If you still feel unsure, ask the station staff: “KL Sentral?”??',
     ],
   },
   'KL Sentral Station': {
@@ -1060,39 +1736,6 @@ export const destinationGuides: Record<string, DestinationGuide> = {
   },
 };
 
-const normalizeGuideKey = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '');
-
-export function findDestinationGuide(mapQuery: string, label?: string) {
-  const candidates = [mapQuery, label, ...Object.values(destinationGuides).map((guide) => guide.title)];
-  const entries = Object.entries(destinationGuides);
-
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-    const exact = destinationGuides[candidate];
-    if (exact) return exact;
-
-    const normalizedCandidate = normalizeGuideKey(candidate);
-    const match = entries.find(([key, guide]) => {
-      const normalizedKey = normalizeGuideKey(key);
-      const normalizedTitle = normalizeGuideKey(guide.title);
-      return (
-        normalizedKey === normalizedCandidate ||
-        normalizedTitle === normalizedCandidate ||
-        normalizedCandidate.includes(normalizedKey) ||
-        normalizedKey.includes(normalizedCandidate) ||
-        normalizedCandidate.includes(normalizedTitle) ||
-        normalizedTitle.includes(normalizedCandidate)
-      );
-    });
-
-    if (match) {
-      return match[1];
-    }
-  }
-
-  return undefined;
-}
-
 type GuideInput = {
   title: string;
   summary: string;
@@ -1112,6 +1755,30 @@ type GuideInput = {
 
 function makeGuide(input: GuideInput): DestinationGuide {
   return input;
+}
+
+function attachFoodGuide(guide: DestinationGuide, item: TimelineItemData): DestinationGuide {
+  if (item.category !== 'food' || !item.foodGuideKey) {
+    return guide;
+  }
+
+  const foodGuide = FOOD_GUIDES_BY_KEY[item.foodGuideKey];
+
+  if (!foodGuide) {
+    return guide;
+  }
+
+  return {
+    ...guide,
+    foodGuide,
+  };
+}
+
+export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
+  const keyedGuide = GUIDES_BY_KEY[item.guideKey];
+  const baseGuide = keyedGuide ?? buildFallbackGuideForItem(item);
+
+  return attachFoodGuide(baseGuide, item);
 }
 
 function isTransportishItem(item: TimelineItemData) {
@@ -1153,24 +1820,34 @@ function buildTransportGuide(
   const destination = places[1] ?? places[0];
   const title = item.title.toLowerCase();
 
-  const originLabel = origin ? `${origin.label}${origin.placeType ? ` ${origin.placeType}` : ''}` : 'the starting point';
-  const destinationLabel = destination ? `${destination.label}${destination.placeType ? ` ${destination.placeType}` : ''}` : 'the destination';
+  const originLabel = origin
+    ? `${origin.label}${origin.placeType ? ` ${origin.placeType}` : ''}`
+    : 'the starting point';
+  const destinationLabel = destination
+    ? `${destination.label}${destination.placeType ? ` ${destination.placeType}` : ''}`
+    : 'the destination';
 
   const goHere = [
     `Go to ${originLabel}.`,
-    title.includes('grab') ? 'Stand at the ride pick-up point and check the car plate before you get in.' : 'Follow the station or terminal signs until you reach the right gate or platform.',
+    title.includes('grab')
+      ? 'Stand at the ride pick-up point and check the car plate before you get in.'
+      : 'Follow the station or terminal signs until you reach the right gate or platform.',
   ];
 
   const buyThis = [
     ticket ? ticket : 'Use the ticket or card method shown in the itinerary.',
-    whereToBuy?.length ? `Buy or top up here: ${whereToBuy.join(', ')}.` : 'If you already have a valid card or e-ticket, use that instead of buying again.',
+    whereToBuy?.length
+      ? `Buy or top up here: ${whereToBuy.join(', ')}.`
+      : 'If you already have a valid card or e-ticket, use that instead of buying again.',
   ];
 
   const tapHere = [
     title.includes('grab') || item.category === 'bus'
       ? 'For Grab or a coach, show the driver or staff your booking on your phone.'
       : 'Tap your ticket, token, or card at the station gate before boarding.',
-    title.includes('grab') ? 'Check the car plate, then open the door and get in.' : 'Wait behind the line and let people get off first.',
+    title.includes('grab')
+      ? 'Check the car plate, then open the door and get in.'
+      : 'Wait behind the line and let people get off first.',
   ];
 
   const getOffHere = [
@@ -1232,24 +1909,29 @@ function genericPlaceGuide(item: TimelineItemData, summary: string, ...args: unk
     tips = args[4] as string[];
   }
 
-  return makeGuide({
-    title: item.title,
-    summary,
-    service,
-    ticket,
-    whereToBuy,
-    transport: buildTransportGuide(item, service, ticket, whereToBuy),
-    steps,
-    tips,
-  });
+  const transportGuide = buildTransportGuide(item, service, ticket, whereToBuy);
+
+  return attachFoodGuide(
+    makeGuide({
+      title: item.title,
+      summary,
+      ...(service ? { service } : {}),
+      ...(ticket ? { ticket } : {}),
+      ...(whereToBuy ? { whereToBuy } : {}),
+      ...(transportGuide ? { transport: transportGuide } : {}),
+      steps,
+      tips,
+    }),
+    item
+  );
 }
 
-export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
+function buildFallbackGuideForItem(item: TimelineItemData): DestinationGuide {
   const title = item.title;
   const query = item.mapQuery ?? title;
 
-  switch (title) {
-    case 'Arrive KLIA':
+  switch (item.guideKey) {
+    case 'arrive-klia':
       return genericPlaceGuide(
         item,
         'You are at the airport. This step is about getting out, finding your bag, and getting to the car.',
@@ -1263,7 +1945,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Keep your passport in your hand.', 'Do not rush. Follow the arrows on the walls.']
       );
 
-    case 'Check in':
+    case 'check-in':
       return genericPlaceGuide(
         item,
         'This is your hotel check-in stop. You are just going inside, saying your name, and resting.',
@@ -1277,9 +1959,9 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Keep your room key safe.', 'Ask the staff if you need help with bags or directions.']
       );
 
-    case 'Breakfast near Chinatown':
-    case 'Lunch in Chinatown':
-    case 'Dinner in Chinatown':
+    case 'breakfast-near-chinatown':
+    case 'lunch-in-chinatown':
+    case 'dinner-in-chinatown':
       return genericPlaceGuide(
         item,
         'This is the Chinatown food area. You walk in, choose a stall or shop, order simple food, and eat slowly.',
@@ -1293,7 +1975,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Chinatown is busy, so stay close to each other.', 'Keep your wallet and phone inside a safe pocket.']
       );
 
-    case 'Central Market':
+    case 'central-market':
       return genericPlaceGuide(
         item,
         'Central Market is a short walk and a simple stop for culture, art, and souvenirs.',
@@ -1307,7 +1989,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['The market is a good short stop.', 'The official site lists daily hours from 10.00am to 10.00pm.']
       );
 
-    case 'Petaling Street':
+    case 'petaling-street':
       return genericPlaceGuide(
         item,
         'Petaling Street is the Chinatown market street. This is a walking-and-looking stop, not a speed run.',
@@ -1321,7 +2003,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Hold your things close.', 'The street is crowded, so do not stop in the middle of the walkway.']
       );
 
-    case 'Kwai Chai Hong':
+    case 'kwai-chai-hong':
       return genericPlaceGuide(
         item,
         'Kwai Chai Hong is a small mural lane in KL Chinatown. It is for a short photo walk.',
@@ -1334,7 +2016,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['The official site points you to Pasar Seni Station Exit A.', 'A short visit is enough here.']
       );
 
-    case 'River of Life / Masjid Jamek area':
+    case 'river-of-life-masjid-jamek-area':
       return genericPlaceGuide(
         item,
         'This is the river and mosque area near the old city center. It is best for a calm walk and photos.',
@@ -1347,7 +2029,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is more of a walk-and-look stop.', 'Keep the mood calm and unhurried.']
       );
 
-    case 'LRT Pasar Seni to KL Sentral':
+    case 'lrt-pasar-seni-to-kl-sentral':
       return genericPlaceGuide(
         item,
         'This is a short city train ride. You board at Pasar Seni, ride one stop, and get off at KL Sentral.',
@@ -1367,8 +2049,8 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Rapid KL station TVM', 'Rapid KL customer service counter', 'Your Touch ’n Go / MyRapid card or MyKad at the gate']
       );
 
-    case 'KTM Komuter to Batu Caves':
-    case 'KTM Komuter return':
+    case 'ktm-komuter-to-batu-caves':
+    case 'ktm-komuter-return':
       return genericPlaceGuide(
         item,
         'This is the KTM train ride to or from Batu Caves. It is a simple station-to-station trip.',
@@ -1386,7 +2068,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['KTMB ticket counter', 'KTMB Ticket Vending Machine (TVM)', 'KTMB online / mobile ticketing']
       );
 
-    case 'Batu Caves':
+    case 'batu-caves':
       return genericPlaceGuide(
         item,
         'This is the temple stop with the famous colorful stairs. Take it one step at a time.',
@@ -1401,7 +2083,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['The official travel site describes the 272 steps.', 'Wear comfortable shoes because the stairs are steep.']
       );
 
-    case 'Lunch near Batu Caves':
+    case 'lunch-near-batu-caves':
       return genericPlaceGuide(
         item,
         'This is a simple food stop near Batu Caves. Keep it easy and budget-friendly.',
@@ -1414,7 +2096,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a quick rest before the next train.', 'Do not over-order.']
       );
 
-    case 'LRT to KLCC':
+    case 'lrt-to-klcc':
       return genericPlaceGuide(
         item,
         'This is the train ride from KL Sentral to the KLCC area.',
@@ -1431,7 +2113,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['If the station feels big, stop and read the signs again.', 'Keep your next stop name in mind.']
       );
 
-    case 'Petronas Twin Towers / KLCC':
+    case 'petronas-twin-towers-klcc':
       return genericPlaceGuide(
         item,
         'This is the tower area. You can take photos outside or go inside only if you have a ticket.',
@@ -1445,7 +2127,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['The official visit page says ticketed visitors should arrive 15 minutes early.', 'Outside photos are the easiest option.']
       );
 
-    case 'KLCC Park / Suria KLCC':
+    case 'klcc-park-suria-klcc':
       return genericPlaceGuide(
         item,
         'This is your rest stop by the towers. It is good for water, snacks, and sitting down.',
@@ -1458,7 +2140,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a good break point.', 'Stay near each other in the mall.']
       );
 
-    case 'Saloma Bridge':
+    case 'saloma-bridge':
       return genericPlaceGuide(
         item,
         'This is a photo bridge with lights and a nice city view.',
@@ -1471,7 +2153,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['The bridge is best at sunset or night.', 'Keep an eye on the walking flow.']
       );
 
-    case 'KLCC to Bukit Bintang Walkway':
+    case 'klcc-to-bukit-bintang-walkway':
       return genericPlaceGuide(
         item,
         'This is the covered city walk between KLCC and Bukit Bintang.',
@@ -1484,7 +2166,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a walking path, not a sightseeing stop.', 'Keep following the covered route signs.']
       );
 
-    case 'Jalan Alor':
+    case 'jalan-alor':
       return genericPlaceGuide(
         item,
         'This is the famous food street in Bukit Bintang. Go in hungry, but keep the budget simple.',
@@ -1498,7 +2180,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['The street is near Bukit Bintang.', 'Avoid big seafood platters and tourist combo sets if you want to stay on budget.']
       );
 
-    case 'MRT back to Pasar Seni':
+    case 'mrt-back-to-pasar-seni':
       return genericPlaceGuide(
         item,
         'This is your short return train ride back to the hotel area.',
@@ -1514,7 +2196,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['It is a quick ride, so stay alert for the stop name.', 'Do not rush when leaving the station.']
       );
 
-    case 'LRT to KL Sentral':
+    case 'lrt-to-kl-sentral':
       return genericPlaceGuide(
         item,
         'This is the morning train from Pasar Seni to KL Sentral before you continue to Malacca.',
@@ -1531,7 +2213,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is just the first part of the Malacca day trip.', 'Check the board before boarding so you do not take the wrong train.']
       );
 
-    case 'KLIA Transit to Bandar Tasik Selatan':
+    case 'klia-transit-to-bandar-tasik-selatan':
       return genericPlaceGuide(
         item,
         'This is the train ride that gets you from KL Sentral to the bus terminal connection point.',
@@ -1548,7 +2230,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Stay calm in the big station.', 'Read the signs twice if you need to.']
       );
 
-    case 'Walk to TBS':
+    case 'walk-to-tbs':
       return genericPlaceGuide(
         item,
         'This is the short walking transfer from the station to the bus terminal.',
@@ -1561,7 +2243,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a short covered walk.', 'Do not go to a random gate. Check your ticket.']
       );
 
-    case 'Bus to Melaka Sentral':
+    case 'bus-to-melaka-sentral':
       return genericPlaceGuide(
         item,
         'This is the long bus ride to Malacca.',
@@ -1578,7 +2260,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Book early if possible.', 'Make sure you are waiting at the right gate.']
       );
 
-    case 'Grab to Dutch Square':
+    case 'grab-to-dutch-square':
       return genericPlaceGuide(
         item,
         'This is the short car ride from the bus terminal into the old city area.',
@@ -1591,7 +2273,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Keep the destination name ready on your phone.', 'The old city area is close, so the ride is short.']
       );
 
-    case 'Dutch Square / Red Square':
+    case 'dutch-square-red-square':
       return genericPlaceGuide(
         item,
         'This is the famous red square in Melaka. It is a simple photo stop right in the old town.',
@@ -1604,7 +2286,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Tourism Malaysia notes Dutch Square is right opposite Jonker Street.', 'It is only a short walk from the main old-town area.']
       );
 
-    case "St. Paul's Hill":
+    case 'st-pauls-hill':
       return genericPlaceGuide(
         item,
         'This is a hill stop with ruins and a view. Walk slowly and take breaks.',
@@ -1617,7 +2299,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['It is a short climb, but still a climb.', 'Wear shoes you can walk in.']
       );
 
-    case 'A Famosa / Porta de Santiago':
+    case 'a-famosa-porta-de-santiago':
       return genericPlaceGuide(
         item,
         'This is a quick historical photo stop in Melaka.',
@@ -1630,7 +2312,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a short photo-and-go stop.', 'You do not need a long visit here.']
       );
 
-    case 'Lunch near Jonker / Dutch Square':
+    case 'lunch-near-jonker-dutch-square':
       return genericPlaceGuide(
         item,
         'This is your lunch stop in the old-town area. Keep it simple, local, and easy.',
@@ -1643,7 +2325,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Jonker is a good place to try local food.', 'Choose the meal first, then the snacks.']
       );
 
-    case 'Harmony Street / Jonker Street':
+    case 'harmony-street-jonker-street':
       return genericPlaceGuide(
         item,
         'This is the walking heritage area. Go slowly and look around at the shops and buildings.',
@@ -1656,7 +2338,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a heritage walk, not a rush.', 'Stay aware of people and traffic.']
       );
 
-    case 'Cendol / cold drinks':
+    case 'cendol-cold-drinks':
       return genericPlaceGuide(
         item,
         'This is a short snack break. Buy something cold and sit for a bit.',
@@ -1669,7 +2351,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a tiny rest stop.', 'Do not over-order.']
       );
 
-    case 'Melaka River Walk':
+    case 'melaka-river-walk':
       return genericPlaceGuide(
         item,
         'This is a calm riverside walk. You are here to see the water and take photos.',
@@ -1682,7 +2364,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Good for a slow break.', 'Nice in the late afternoon.']
       );
 
-    case 'Early dinner in Malacca':
+    case 'early-dinner-in-malacca':
       return genericPlaceGuide(
         item,
         'This is your last Melaka meal before the return trip. Keep it filling but not heavy.',
@@ -1695,7 +2377,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Keep an eye on the return schedule.', 'Dinner should be simple, not a long event.']
       );
 
-    case 'Grab back to Melaka Sentral':
+    case 'grab-back-to-melaka-sentral':
       return genericPlaceGuide(
         item,
         'This is the short ride back to the bus terminal after dinner.',
@@ -1708,7 +2390,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Leave enough time for the bus.', 'Do not forget your bag on the car seat.']
       );
 
-    case 'Bus to TBS':
+    case 'bus-to-tbs':
       return genericPlaceGuide(
         item,
         'This is the return bus ride from Melaka back to Kuala Lumpur.',
@@ -1722,7 +2404,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is the same trip in reverse.', 'Stay near your gate so you do not miss the bus.']
       );
 
-    case 'KLIA Transit back to KL Sentral':
+    case 'klia-transit-back-to-kl-sentral':
       return genericPlaceGuide(
         item,
         'This is the train ride from the airport-area connection back to KL Sentral.',
@@ -1738,7 +2420,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a transfer ride, so stay alert.', 'Watch the station names as the train moves.']
       );
 
-    case 'LRT back to Pasar Seni':
+    case 'lrt-back-to-pasar-seni':
       return genericPlaceGuide(
         item,
         'This is the last short ride home to the hotel area.',
@@ -1754,7 +2436,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This is a short final hop.', 'Be careful with your bags if you are tired.']
       );
 
-    case 'Wake up':
+    case 'wake-up':
       return genericPlaceGuide(
         item,
         'This is your very early start. Keep it quiet, simple, and calm.',
@@ -1767,7 +2449,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Do not forget your passport.', 'Double-check the flight time before you move.']
       );
 
-    case 'Check out Travelodge':
+    case 'check-out-travelodge':
       return genericPlaceGuide(
         item,
         'This is the hotel checkout step. You are leaving the room and going to the lobby.',
@@ -1780,7 +2462,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Do a final room check.', 'Keep your passport and phone with you.']
       );
 
-    case 'Grab to KLIA':
+    case 'grab-to-klia':
       return genericPlaceGuide(
         item,
         'This is the airport ride. Get in the car and let it take you to KLIA.',
@@ -1793,7 +2475,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['This ride is paid by card, not cash.', 'Check the terminal before you leave the car.']
       );
 
-    case 'KLIA check-in':
+    case 'klia-check-in':
       return genericPlaceGuide(
         item,
         'This is the airport process before your flight.',
@@ -1807,7 +2489,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Do not rush.', 'Keep your passport and boarding pass in your hand.']
       );
 
-    case 'Airport breakfast / snack':
+    case 'airport-breakfast':
       return genericPlaceGuide(
         item,
         'This is a final food stop before the flight. Eat something easy and do not overthink it.',
@@ -1820,7 +2502,7 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
         ['Do not buy too much.', 'Leave enough time to reach your gate.']
       );
 
-    case 'Flight departs':
+    case 'flight-departs':
       return genericPlaceGuide(
         item,
         'This is the end of the trip. You are boarding and flying out.',
@@ -1916,10 +2598,58 @@ export function buildGuideForItem(item: TimelineItemData): DestinationGuide {
   }
 }
 
-export const hero = itinerary.hero;
-export const budgetSummary = itinerary.budgetSummary;
-export const legend = itinerary.legend;
-export const days = itinerary.days;
-export const alert = itinerary.alert;
-export const tips = itinerary.tips;
-export const footer = itinerary.footer;
+const GUIDES_BY_KEY: Record<GuideKey, DestinationGuide> = Object.fromEntries(
+  currentItinerary.days.flatMap((day) =>
+    day.items.map((item) => {
+      return [item.guideKey, buildFallbackGuideForItem(item)] as const;
+    })
+  )
+) as Record<GuideKey, DestinationGuide>;
+
+export const hero = currentItinerary.hero;
+export const budgetSummary = currentItinerary.budgetSummary;
+export const legend = currentItinerary.legend;
+export const days = currentItinerary.days;
+export const alert = currentItinerary.alert;
+export const tips = currentItinerary.tips;
+export const footer = currentItinerary.footer;
+
+export const currentHero = currentItinerary.hero;
+export const currentBudgetSummary = currentItinerary.budgetSummary;
+export const currentLegend = currentItinerary.legend;
+export const currentDays = currentItinerary.days;
+export const currentAlert = currentItinerary.alert;
+export const currentTips = currentItinerary.tips;
+export const currentFooter = currentItinerary.footer;
+
+export const ITINERARIES_BY_ID = {
+  main: {
+    id: 'main',
+    label: 'Main itinerary',
+    description: 'Current Kuala Lumpur, Malacca, Singapore plan',
+    hero: currentHero,
+    budgetSummary: currentBudgetSummary,
+    legend: currentLegend,
+    days: currentDays,
+    alert: currentAlert,
+    tips: currentTips,
+    footer: currentFooter,
+  },
+  partner: {
+    id: 'partner',
+    label: 'Partner itinerary',
+    description: 'Placeholder itinerary for future replacement',
+    hero: currentHero,
+    budgetSummary: currentBudgetSummary,
+    legend: currentLegend,
+    days: currentDays,
+    alert: currentAlert,
+    tips: currentTips,
+    footer: currentFooter,
+  },
+} satisfies Record<ItineraryId, ItineraryPlan>;
+
+export const DEFAULT_ITINERARY_ID: ItineraryId = 'main';
+export const selectedItinerary = ITINERARIES_BY_ID[DEFAULT_ITINERARY_ID];
+export const itinerary = selectedItinerary;
+

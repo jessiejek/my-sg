@@ -19,7 +19,7 @@ export function DaySection({ day, onInfoClick }: DaySectionProps) {
 
       <div className="timeline">
         {day.items.map((item) => (
-          <TimelineItem key={`${day.day}-${item.time}-${item.title}`} item={item} onInfoClick={onInfoClick} />
+          <TimelineItem key={item.id} item={item} onInfoClick={onInfoClick} />
         ))}
       </div>
     </section>

@@ -123,6 +123,42 @@ export function DestinationInfoModal({ guide, onClose }: DestinationInfoModalPro
           </div>
         ) : null}
 
+        {guide.foodGuide ? (
+          <div className="guide-food">
+            <div className="guide-section-title">What to eat nearby</div>
+
+            <p className="guide-food-area">{guide.foodGuide.areaNote}</p>
+
+            <div className="guide-food-grid">
+              {guide.foodGuide.nearbyFoods.map((food) => (
+                <section className="guide-food-card" key={food.name}>
+                  <div className="guide-food-card-top">
+                    <h3>{food.name}</h3>
+                    <span>{food.estimatedPrice}</span>
+                  </div>
+                  <p>{food.description}</p>
+                </section>
+              ))}
+            </div>
+
+            <section className="guide-food-order">
+              <div className="guide-food-order-label">Suggested order for 2</div>
+              <p>{guide.foodGuide.suggestedOrderForTwo}</p>
+            </section>
+
+            <section className="guide-food-tips">
+              <div className="guide-food-order-label">Food tips</div>
+              <ul>
+                {guide.foodGuide.tips.map((tip) => (
+                  <li key={tip}>{tip}</li>
+                ))}
+              </ul>
+            </section>
+
+            <p className="guide-food-note">{guide.foodGuide.priceNote}</p>
+          </div>
+        ) : null}
+
         <div className="guide-section">
           <div className="guide-section-title">Easy steps</div>
           <ol className="guide-steps">
