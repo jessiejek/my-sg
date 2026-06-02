@@ -695,6 +695,45 @@ a {
   margin-bottom: 0.55rem;
 }
 
+.guide-transport {
+  margin: 1rem 0 0.25rem;
+}
+
+.guide-transport-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.guide-transport-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbf8 100%);
+  padding: 0.8rem 0.85rem;
+}
+
+.guide-transport-full {
+  grid-column: 1 / -1;
+}
+
+.guide-transport-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.45rem;
+}
+
+.guide-transport-list {
+  padding-left: 1rem;
+  color: var(--text-muted);
+}
+
+.guide-transport-list li {
+  font-size: 12px;
+  line-height: 1.55;
+  margin-bottom: 0.35rem;
+}
+
 .guide-steps,
 .guide-tips {
   padding-left: 1.15rem;
@@ -752,5 +791,9 @@ footer {
 
   .guide-header h2 {
     font-size: 1.45rem;
+  }
+
+  .guide-transport-grid {
+    grid-template-columns: 1fr;
   }
 }

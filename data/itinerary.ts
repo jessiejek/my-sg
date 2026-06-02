@@ -79,6 +79,13 @@ export type DestinationGuide = {
   service?: string;
   ticket?: string;
   whereToBuy?: string[];
+  transport?: {
+    goHere: string[];
+    buyThis: string[];
+    tapHere: string[];
+    getOffHere: string[];
+    extra?: string[];
+  };
   steps: string[];
   tips: string[];
 };
@@ -1092,12 +1099,97 @@ type GuideInput = {
   service?: string;
   ticket?: string;
   whereToBuy?: string[];
+  transport?: {
+    goHere: string[];
+    buyThis: string[];
+    tapHere: string[];
+    getOffHere: string[];
+    extra?: string[];
+  };
   steps: string[];
   tips: string[];
 };
 
 function makeGuide(input: GuideInput): DestinationGuide {
   return input;
+}
+
+function isTransportishItem(item: TimelineItemData) {
+  const title = item.title.toLowerCase();
+  return (
+    item.category === 'train' ||
+    item.category === 'bus' ||
+    title.includes('grab') ||
+    title.includes('lrt') ||
+    title.includes('ktm') ||
+    title.includes('mrt') ||
+    title.includes('klia transit') ||
+    title.includes('walk to') ||
+    title.includes('to kl sentral') ||
+    title.includes('to klcc') ||
+    title.includes('to tbs') ||
+    title.includes('to melaka sentral') ||
+    title.includes('back to') ||
+    title.includes('airport')
+  );
+}
+
+function extractPlaceLabels(item: TimelineItemData) {
+  return item.description.filter((segment): segment is PlaceSegment => segment.kind === 'place');
+}
+
+function buildTransportGuide(
+  item: TimelineItemData,
+  service?: string,
+  ticket?: string,
+  whereToBuy?: string[]
+): DestinationGuide['transport'] | undefined {
+  if (!isTransportishItem(item)) {
+    return undefined;
+  }
+
+  const places = extractPlaceLabels(item);
+  const origin = places[0];
+  const destination = places[1] ?? places[0];
+  const title = item.title.toLowerCase();
+
+  const originLabel = origin ? `${origin.label}${origin.placeType ? ` ${origin.placeType}` : ''}` : 'the starting point';
+  const destinationLabel = destination ? `${destination.label}${destination.placeType ? ` ${destination.placeType}` : ''}` : 'the destination';
+
+  const goHere = [
+    `Go to ${originLabel}.`,
+    title.includes('grab') ? 'Stand at the ride pick-up point and check the car plate before you get in.' : 'Follow the station or terminal signs until you reach the right gate or platform.',
+  ];
+
+  const buyThis = [
+    ticket ? ticket : 'Use the ticket or card method shown in the itinerary.',
+    whereToBuy?.length ? `Buy or top up here: ${whereToBuy.join(', ')}.` : 'If you already have a valid card or e-ticket, use that instead of buying again.',
+  ];
+
+  const tapHere = [
+    title.includes('grab') || item.category === 'bus'
+      ? 'For Grab or a coach, show the driver or staff your booking on your phone.'
+      : 'Tap your ticket, token, or card at the station gate before boarding.',
+    title.includes('grab') ? 'Check the car plate, then open the door and get in.' : 'Wait behind the line and let people get off first.',
+  ];
+
+  const getOffHere = [
+    `Get off at ${destinationLabel}.`,
+    'Follow the exit signs, then look for the next step in the itinerary.',
+  ];
+
+  const extra = [
+    service ? `Service: ${service}` : undefined,
+    item.cost ? `Cost note: ${item.cost}` : undefined,
+  ].filter((value): value is string => Boolean(value));
+
+  return {
+    goHere,
+    buyThis,
+    tapHere,
+    getOffHere,
+    extra: extra.length ? extra : undefined,
+  };
 }
 
 function genericPlaceGuide(item: TimelineItemData, summary: string, steps: string[], tips: string[]): DestinationGuide;
@@ -1146,6 +1238,7 @@ function genericPlaceGuide(item: TimelineItemData, summary: string, ...args: unk
     service,
     ticket,
     whereToBuy,
+    transport: buildTransportGuide(item, service, ticket, whereToBuy),
     steps,
     tips,
   });

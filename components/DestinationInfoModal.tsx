@@ -73,6 +73,56 @@ export function DestinationInfoModal({ guide, onClose }: DestinationInfoModalPro
           </div>
         ) : null}
 
+        {guide.transport ? (
+          <div className="guide-transport">
+            <div className="guide-section-title">Transport checklist</div>
+            <div className="guide-transport-grid">
+              <section className="guide-transport-card">
+                <div className="guide-transport-title">Go here</div>
+                <ul className="guide-transport-list">
+                  {guide.transport.goHere.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+              <section className="guide-transport-card">
+                <div className="guide-transport-title">Buy this</div>
+                <ul className="guide-transport-list">
+                  {guide.transport.buyThis.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+              <section className="guide-transport-card">
+                <div className="guide-transport-title">Tap here</div>
+                <ul className="guide-transport-list">
+                  {guide.transport.tapHere.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+              <section className="guide-transport-card">
+                <div className="guide-transport-title">Get off here</div>
+                <ul className="guide-transport-list">
+                  {guide.transport.getOffHere.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </section>
+              {guide.transport.extra?.length ? (
+                <section className="guide-transport-card guide-transport-full">
+                  <div className="guide-transport-title">Extra notes</div>
+                  <ul className="guide-transport-list">
+                    {guide.transport.extra.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
         <div className="guide-section">
           <div className="guide-section-title">Easy steps</div>
           <ol className="guide-steps">
