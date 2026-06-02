@@ -21,9 +21,10 @@ const CATEGORY_ICON_CLASS: Record<BadgeCategory, string> = {
 export function TimelineItem({ item, onInfoClick }: TimelineItemProps) {
   const badgeCategory = getBadgeCategory(item);
   const iconClass = CATEGORY_ICON_CLASS[badgeCategory];
+  const hasDetails = Boolean(onInfoClick);
 
   return (
-    <div className={`titem ${item.category}`} aria-label={`${item.time} ${item.title}`}>
+    <div className={`titem ${item.category} ${hasDetails ? 'has-details' : ''}`} aria-label={`${item.time} ${item.title}`}>
       <div className={`timeline-badge badge-${item.category}`} aria-hidden="true">
         <i className={`timeline-badge-icon ${iconClass}`} aria-hidden="true" />
       </div>

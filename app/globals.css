@@ -336,9 +336,19 @@ a {
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-.titem:hover {
+.titem.has-details {
+  cursor: default;
+}
+
+.titem.has-details:hover,
+.titem.has-details:focus-within {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.titem.has-details:active {
+  transform: translateY(0);
 }
 
 .timeline-badge {
@@ -434,18 +444,23 @@ a {
   text-decoration: none;
   font-weight: 600;
   border-bottom: 1px solid transparent;
-  transition: color 0.18s ease, border-color 0.18s ease;
+  transition: color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .place-link:hover {
   color: var(--blue);
   border-bottom-color: rgba(24, 95, 165, 0.22);
+  background: rgba(24, 95, 165, 0.04);
 }
 
 .place-link:focus-visible {
   outline: 2px solid rgba(24, 95, 165, 0.25);
   outline-offset: 2px;
   border-radius: 3px;
+}
+
+.place-link:active {
+  background: rgba(24, 95, 165, 0.08);
 }
 
 .info-btn {
@@ -475,6 +490,11 @@ a {
 .info-btn:focus-visible {
   outline: 2px solid rgba(24, 95, 165, 0.22);
   outline-offset: 2px;
+}
+
+.info-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .place-name {
@@ -801,6 +821,10 @@ footer {
 
   .titem-top {
     align-items: flex-start;
+  }
+
+  .titem.has-details:active {
+    transform: scale(0.995);
   }
 
   .tcost {
