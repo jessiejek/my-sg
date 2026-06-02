@@ -1,0 +1,10 @@
+
+> jessie-amor-malaysia-singapore-trip@1.0.0 start
+> next start --port 3000
+
+   ▲ Next.js 15.3.4
+   - Local:        http://localhost:3000
+   - Network:      http://10.90.1.242:3000
+
+ ✓ Starting...
+ ✓ Ready in 1258ms

@@ -57,6 +57,10 @@ a {
   color: inherit;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
@@ -393,6 +397,13 @@ a {
   flex: 1;
 }
 
+.place-inline {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
 .place-link {
   color: inherit;
   text-decoration: none;
@@ -410,6 +421,35 @@ a {
   outline: 2px solid rgba(24, 95, 165, 0.25);
   outline-offset: 2px;
   border-radius: 3px;
+}
+
+.info-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  background: linear-gradient(180deg, #ffffff 0%, #f4f4ef 100%);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.info-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(24, 95, 165, 0.28);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.info-btn:focus-visible {
+  outline: 2px solid rgba(24, 95, 165, 0.22);
+  outline-offset: 2px;
 }
 
 .place-name {
@@ -530,6 +570,148 @@ a {
   flex-shrink: 0;
 }
 
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(12, 21, 18, 0.44);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(6px);
+}
+
+.guide-modal {
+  width: min(560px, 100%);
+  max-height: min(84vh, 900px);
+  overflow: auto;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+  padding: 1.15rem 1.15rem 1rem;
+}
+
+.guide-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.guide-eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.35rem;
+}
+
+.guide-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.65rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.guide-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.guide-summary {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.guide-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.guide-fact {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 0.8rem;
+  background: #fbfbf8;
+}
+
+.guide-fact-full {
+  grid-column: 1 / -1;
+}
+
+.guide-fact-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.3rem;
+}
+
+.guide-fact-value {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.guide-buy-list {
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+}
+
+.guide-buy-list li {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 0.35rem;
+}
+
+.guide-section {
+  margin-top: 0.95rem;
+}
+
+.guide-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 0.55rem;
+}
+
+.guide-steps,
+.guide-tips {
+  padding-left: 1.15rem;
+  color: var(--text);
+}
+
+.guide-steps li,
+.guide-tips li {
+  margin-bottom: 0.55rem;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.guide-tips li {
+  color: var(--text-muted);
+}
+
 footer {
   text-align: center;
   padding: 2rem 1.5rem;
@@ -561,5 +743,14 @@ footer {
 
   .tips-grid {
     grid-template-columns: 1fr;
+  }
+
+  .guide-modal {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .guide-header h2 {
+    font-size: 1.45rem;
   }
 }

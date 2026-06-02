@@ -1,3 +1,5 @@
+'use client';
+
 import type { Segment } from '@/data/itinerary';
 
 type RichTextProps = {
@@ -17,16 +19,17 @@ export function RichText({ segments }: RichTextProps) {
         }
 
         return (
-          <a
-            key={`${segment.kind}-${index}`}
-            className="place-link"
-            href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(segment.mapQuery)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="place-name">{segment.label}</span>
-            {segment.placeType ? <span className="place-type"> {segment.placeType}</span> : null}
-          </a>
+          <span key={`${segment.kind}-${index}`} className="place-inline">
+            <a
+              className="place-link"
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(segment.mapQuery)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              >
+                <span className="place-name">{segment.label}</span>
+                {segment.placeType ? <span className="place-type"> {segment.placeType}</span> : null}
+              </a>
+          </span>
         );
       })}
     </>
