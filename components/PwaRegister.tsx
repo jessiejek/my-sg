@@ -6,12 +6,27 @@ export function PwaRegister() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     if (typeof window === 'undefined') return;
-    if (!['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.protocol !== 'https:') {
+    const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const isSecureContext = window.location.protocol === 'https:';
+
+    if (isLocalDev) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => registration.unregister());
+      });
+
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          keys.forEach((key) => caches.delete(key));
+        });
+      }
+
       return;
     }
 
+    if (!isSecureContext) return;
+
     const register = () => {
-      navigator.serviceWorker.register('/sw.js').catch((error) => {
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch((error) => {
         console.warn('Service worker registration failed:', error);
       });
     };

@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 
-const CACHE_NAME = 'jessie-amor-pwa-v1';
+const CACHE_NAME = 'jessie-amor-pwa-v2';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/icon', '/apple-icon'];
 
 self.addEventListener('install', (event) => {

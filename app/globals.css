@@ -312,7 +312,7 @@ a {
 
 .timeline {
   position: relative;
-  padding-left: 28px;
+  padding-left: 40px;
 }
 
 .timeline::before {
@@ -341,44 +341,73 @@ a {
   border-color: var(--border-strong);
 }
 
-.titem::before {
-  content: '';
+.timeline-badge {
   position: absolute;
-  left: -23px;
-  top: 14px;
-  width: 9px;
-  height: 9px;
+  left: -48px;
+  top: 0.95rem;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: var(--gray-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid var(--bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  z-index: 1;
 }
 
-.titem.train::before {
+.timeline-badge-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  color: #fff;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.badge-train {
   background: var(--blue-mid);
 }
 
-.titem.bus::before {
+.badge-bus {
   background: var(--amber-mid);
 }
 
-.titem.food::before {
+.badge-food {
   background: var(--teal-mid);
 }
 
-.titem.spot::before {
+.badge-spot {
   background: var(--purple-mid);
 }
 
-.titem.hotel::before {
+.badge-walk {
+  background: var(--gray-mid);
+}
+
+.badge-free {
+  background: var(--gray-mid);
+}
+
+.badge-hotel {
   background: var(--pink-mid);
 }
 
 .titem-top {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
+  justify-content: flex-start;
+}
+
+.ttime-row {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-bottom: 2px;
 }
 
 .ttime {
@@ -387,7 +416,6 @@ a {
   letter-spacing: 1px;
   color: var(--text-faint);
   white-space: nowrap;
-  margin-bottom: 3px;
 }
 
 .tdesc {
@@ -424,8 +452,8 @@ a {
 }
 
 .info-btn {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.14);
   background: linear-gradient(180deg, #ffffff 0%, #f4f4ef 100%);
@@ -773,11 +801,21 @@ footer {
   }
 
   .titem-top {
-    flex-direction: column;
+    align-items: flex-start;
   }
 
   .tcost {
     margin-left: 0;
+  }
+
+  .timeline {
+    padding-left: 38px;
+  }
+
+  .timeline-badge {
+    left: -44px;
+    width: 32px;
+    height: 32px;
   }
 
   .tips-grid {
